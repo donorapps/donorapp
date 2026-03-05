@@ -134,7 +134,7 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); colo
 .view.active { display: block; }
 
 /* ── DASHBOARD ── */
-#view-home { padding: 6px 10px 18px; }
+#view-home { padding: 36px 40px 48px; }
 .dash-greeting { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 900; line-height: 1.1; letter-spacing: -.5px; margin-bottom: 6px; }
 .dash-greeting span { color: #E9873A; font-style: italic; }
 .dash-sub { font-size: .85rem; color: var(--muted); max-width: 520px; line-height: 1.6; margin-bottom: 28px; }
@@ -366,7 +366,7 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); colo
 
 <!-- HOME -->
 <div class="view active" id="view-home">
-  <div style="padding:6px 10px 18px">
+  <div style="padding:36px 40px 48px">
     <div class="dash-greeting">Olá, bem-vinda ao seu<br><span>guia de captação.</span></div>
     <div class="dash-sub">Este é o espaço da sua equipe para organizar como a ONG vai encontrar, conquistar e manter as pessoas que acreditam na sua causa. Todas as edições são salvas automaticamente e visíveis para todos da equipe.</div>
     <div class="ong-setup">
@@ -752,6 +752,67 @@ async function connectSupabase() {
 // ── NAVIGATION ──
 const MODULES = ['m1','m2','m3','m4','m5','m6','m7','m8','m9'];
 let completed = {};
+
+// ── SWIPE GESTURE HANDLER ──
+(function() {
+  let touchStartX = 0;
+  let touchStartY = 0;
+  let touchStartTime = 0;
+
+  document.addEventListener('touchstart', function(e) {
+    touchStartX    = e.touches[0].clientX;
+    touchStartY    = e.touches[0].clientY;
+    touchStartTime = Date.now();
+  }, { passive: true });
+
+  document.addEventListener('touchend', function(e) {
+    const dx       = e.changedTouches[0].clientX - touchStartX;
+    const dy       = e.changedTouches[0].clientY - touchStartY;
+    const dt       = Date.now() - touchStartTime;
+    const absDx    = Math.abs(dx);
+    const absDy    = Math.abs(dy);
+
+    // Only handle fast, clearly horizontal swipes
+    if (dt > 400)   return;   // too slow
+    if (absDx < 50) return;   // too short
+    if (absDy > absDx * 0.6) return; // too diagonal
+
+    const sidebar = document.getElementById('sidebar');
+    const isMobile = window.innerWidth <= 768;
+    if (!isMobile) return;
+
+    // Swipe RIGHT → open sidebar OR go to dashboard
+    if (dx > 0) {
+      if (sidebar.classList.contains('open')) return; // already open
+      // If swiping from left edge (first 30px), open sidebar
+      if (touchStartX <= 30) {
+        toggleSidebar();
+      } else {
+        // Mid-screen swipe right = go to dashboard
+        showView('home');
+      }
+      e.preventDefault && e.preventDefault();
+    }
+
+    // Swipe LEFT → close sidebar if open
+    if (dx < 0 && sidebar.classList.contains('open')) {
+      closeSidebar();
+      e.preventDefault && e.preventDefault();
+    }
+  }, { passive: true });
+
+  // Block the browser back-swipe from the left edge while sidebar is closed
+  // by pushing a dummy history state on mobile
+  if (window.innerWidth <= 768) {
+    history.pushState({ page: 'app' }, '', window.location.href);
+    window.addEventListener('popstate', function(e) {
+      // User triggered browser back — push state again to stay in the app
+      history.pushState({ page: 'app' }, '', window.location.href);
+      // Then navigate to dashboard instead of closing the tab
+      showView('home');
+    });
+  }
+})();
 
 // ── MOBILE SIDEBAR TOGGLE ──
 function toggleSidebar() {
