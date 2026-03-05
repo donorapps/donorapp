@@ -1,0 +1,1531 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guia de Captação — ONGs que crescem</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════
+   TOKENS
+═══════════════════════════════════════════ */
+:root {
+  --bg:       #F9F6F1;
+  --sidebar:  #1C1917;
+  --card:     #FFFFFF;
+  --line:     #E5DFD6;
+  --muted:    #9C8E82;
+  --text:     #1C1917;
+
+  --c1: #166534; /* Jornada */
+  --c2: #1E3A5F; /* Arrecadação */
+  --c3: #7C2D12; /* Retenção */
+  --c4: #5B21B6; /* Campanhas */
+  --c5: #92400E; /* Grandes doadores */
+  --c6: #065F46; /* Agradecimento */
+  --c7: #1E40AF; /* Mensal */
+  --c8: #831843; /* Engajamento */
+  --c9: #713F12; /* Terça de Doar */
+
+  --c1l: #DCFCE7;
+  --c2l: #DBEAFE;
+  --c3l: #FEE2E2;
+  --c4l: #EDE9FE;
+  --c5l: #FEF3C7;
+  --c6l: #D1FAE5;
+  --c7l: #DBEAFE;
+  --c8l: #FCE7F3;
+  --c9l: #FEF9C3;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ═══════════════════════════════════════════
+   SIDEBAR
+═══════════════════════════════════════════ */
+.sidebar {
+  width: 260px;
+  min-width: 260px;
+  background: var(--sidebar);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.sidebar::-webkit-scrollbar { display: none; }
+
+.sidebar-brand {
+  padding: 24px 20px 18px;
+  border-bottom: 1px solid #2D2825;
+}
+.brand-icon {
+  width: 36px; height: 36px;
+  background: #E9873A;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+}
+.brand-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #F5F0E8;
+  line-height: 1.2;
+}
+.brand-sub {
+  font-size: .65rem;
+  color: #6B5E54;
+  margin-top: 2px;
+  letter-spacing: .3px;
+}
+
+.sidebar-section {
+  padding: 14px 16px 4px;
+  font-size: .58rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: #4A3F38;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 16px;
+  cursor: pointer;
+  border-radius: 8px;
+  margin: 1px 8px;
+  transition: all .15s;
+  position: relative;
+}
+.nav-item:hover { background: #2A2420; }
+.nav-item.active { background: #2A2420; }
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 50%;
+  transform: translateY(-50%);
+  width: 3px; height: 60%;
+  border-radius: 2px;
+  background: #E9873A;
+}
+.nav-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.nav-label {
+  font-size: .78rem;
+  color: #C4B5A8;
+  font-weight: 400;
+  line-height: 1.2;
+  flex: 1;
+}
+.nav-item.active .nav-label { color: #F5F0E8; font-weight: 500; }
+.nav-check {
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  border: 1.5px solid #3D3530;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .55rem;
+  color: transparent;
+  flex-shrink: 0;
+  transition: all .2s;
+}
+.nav-check.done { background: #E9873A; border-color: #E9873A; color: #fff; }
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 16px;
+  border-top: 1px solid #2D2825;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.sidebar-btn {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: .72rem;
+  font-weight: 500;
+  padding: 7px 12px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all .15s;
+  text-align: center;
+}
+.btn-save { background: #E9873A; color: #fff; }
+.btn-save:hover { background: #D97A30; }
+.btn-load { background: #2A2420; color: #C4B5A8; }
+.btn-load:hover { background: #332D28; color: #F5F0E8; }
+.btn-print { background: transparent; color: #6B5E54; border: 1px solid #3D3530; }
+.btn-print:hover { color: #C4B5A8; }
+
+/* ═══════════════════════════════════════════
+   MAIN CONTENT
+═══════════════════════════════════════════ */
+.main {
+  flex: 1;
+  overflow-y: auto;
+  height: 100vh;
+}
+
+/* ── DASHBOARD (home) ── */
+.view { display: none; padding: 0; }
+.view.active { display: block; }
+
+/* Dashboard */
+#view-home {
+  padding: 36px 40px 48px;
+}
+.dash-header {
+  margin-bottom: 32px;
+}
+.dash-greeting {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -.5px;
+  margin-bottom: 6px;
+}
+.dash-greeting span { color: #E9873A; font-style: italic; }
+.dash-sub {
+  font-size: .85rem;
+  color: var(--muted);
+  max-width: 520px;
+  line-height: 1.6;
+}
+
+.ong-setup {
+  background: var(--card);
+  border: 1.5px solid var(--line);
+  border-radius: 14px;
+  padding: 22px 24px;
+  margin-bottom: 28px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+.setup-field label {
+  display: block;
+  font-size: .65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+.setup-field [contenteditable] {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: .88rem;
+  font-weight: 500;
+  color: var(--text);
+  outline: none;
+  border-bottom: 1.5px solid var(--line);
+  padding-bottom: 4px;
+  display: block;
+  width: 100%;
+  min-height: 24px;
+  background: transparent;
+  transition: border-color .2s;
+}
+.setup-field [contenteditable]:focus { border-color: #E9873A; }
+.setup-field [contenteditable]:empty::before {
+  content: attr(data-ph);
+  color: #C8BFB5;
+  pointer-events: none;
+}
+
+.progress-section {
+  margin-bottom: 28px;
+}
+.progress-title {
+  font-size: .72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+.progress-bar-wrap {
+  background: var(--line);
+  border-radius: 99px;
+  height: 8px;
+  margin-bottom: 6px;
+}
+.progress-bar-fill {
+  background: linear-gradient(90deg, #166534, #E9873A);
+  height: 8px;
+  border-radius: 99px;
+  transition: width .4s ease;
+  width: 0%;
+}
+.progress-label {
+  font-size: .72rem;
+  color: var(--muted);
+}
+
+.modules-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+.module-card {
+  background: var(--card);
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  padding: 18px 20px;
+  cursor: pointer;
+  transition: all .2s;
+  position: relative;
+  overflow: hidden;
+}
+.module-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--accent, #E9873A);
+}
+.module-card:hover {
+  border-color: var(--accent, #E9873A);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,.07);
+}
+.module-card.done { background: #FAFAF7; }
+.mc-icon { font-size: 1.5rem; margin-bottom: 8px; }
+.mc-title {
+  font-family: 'Playfair Display', serif;
+  font-size: .95rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+  line-height: 1.2;
+}
+.mc-desc {
+  font-size: .72rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.mc-badge {
+  position: absolute;
+  top: 12px; right: 12px;
+  font-size: .6rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  padding: 2px 8px;
+  border-radius: 99px;
+}
+.mc-badge.start { background: #FEF3C7; color: #92400E; }
+.mc-badge.done-b { background: #D1FAE5; color: #065F46; }
+
+/* ═══════════════════════════════════════════
+   MODULE VIEWS
+═══════════════════════════════════════════ */
+.module-view {
+  padding: 0;
+  min-height: 100vh;
+}
+
+.module-hero {
+  padding: 32px 40px 24px;
+  border-bottom: 1.5px solid var(--line);
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  background: var(--card);
+}
+.hero-icon-wrap {
+  width: 56px; height: 56px;
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.6rem;
+  flex-shrink: 0;
+}
+.hero-text h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.6rem;
+  font-weight: 900;
+  line-height: 1.1;
+  margin-bottom: 6px;
+  letter-spacing: -.3px;
+}
+.hero-text .hero-why {
+  font-size: .82rem;
+  color: var(--muted);
+  line-height: 1.6;
+  max-width: 640px;
+}
+.hero-text .hero-plain {
+  display: inline-block;
+  font-size: .72rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 99px;
+  margin-top: 8px;
+}
+
+.module-body {
+  padding: 28px 40px 52px;
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 24px;
+  align-items: start;
+}
+
+/* Columns */
+.col-main { display: flex; flex-direction: column; gap: 20px; }
+.col-side { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 24px; }
+
+/* Block cards */
+.block {
+  background: var(--card);
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.block-head {
+  padding: 13px 18px 11px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.block-head-icon {
+  width: 28px; height: 28px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .85rem;
+  flex-shrink: 0;
+}
+.block-head h3 {
+  font-size: .82rem;
+  font-weight: 600;
+  letter-spacing: .1px;
+}
+.block-body { padding: 16px 18px; }
+
+/* Editable areas */
+.edit-area {
+  border: 1.5px dashed var(--line);
+  border-radius: 8px;
+  padding: 12px 14px;
+  background: var(--bg);
+  margin-top: 8px;
+}
+.edit-area [contenteditable] {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: .82rem;
+  line-height: 1.65;
+  outline: none;
+  min-height: 60px;
+  display: block;
+  background: transparent;
+  width: 100%;
+}
+.edit-area [contenteditable]:empty::before {
+  content: attr(data-ph);
+  color: #C8BFB5;
+  pointer-events: none;
+}
+.edit-area [contenteditable]:focus {
+  background: #FFFDF9;
+  border-radius: 6px;
+}
+.edit-label {
+  font-size: .65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: var(--muted);
+  margin-bottom: 4px;
+  display: block;
+}
+
+/* Checklist */
+.checklist { display: flex; flex-direction: column; gap: 8px; }
+.check-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  padding: 8px 10px;
+  border-radius: 8px;
+  transition: background .15s;
+  border: 1px solid transparent;
+}
+.check-item:hover { background: var(--bg); }
+.check-item.checked { background: #F0FDF4; border-color: #BBF7D0; }
+.check-box {
+  width: 18px; height: 18px;
+  border-radius: 5px;
+  border: 2px solid var(--line);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+  transition: all .15s;
+  font-size: .65rem;
+  color: transparent;
+}
+.check-item.checked .check-box {
+  background: #16A34A;
+  border-color: #16A34A;
+  color: #fff;
+}
+.check-text {
+  font-size: .8rem;
+  line-height: 1.5;
+  color: var(--text);
+}
+.check-item.checked .check-text {
+  text-decoration: line-through;
+  color: var(--muted);
+}
+
+/* Info pills */
+.info-pill {
+  display: flex;
+  gap: 10px;
+  padding: 11px 14px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  font-size: .78rem;
+  line-height: 1.5;
+}
+.pill-icon { font-size: 1rem; flex-shrink: 0; }
+.pill-text strong { display: block; font-weight: 600; font-size: .78rem; margin-bottom: 2px; }
+.pill-text { font-size: .76rem; color: var(--muted); }
+
+/* Metric inputs */
+.metric-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.metric-box {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.metric-box label {
+  display: block;
+  font-size: .62rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.metric-box [contenteditable] {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  outline: none;
+  background: transparent;
+  display: block;
+  min-height: 28px;
+}
+.metric-box [contenteditable]:empty::before { content: '—'; color: var(--line); }
+
+/* Tip box */
+.tip-box {
+  background: #FFFBEB;
+  border: 1px solid #FDE68A;
+  border-radius: 10px;
+  padding: 13px 15px;
+  font-size: .78rem;
+  line-height: 1.6;
+  color: #78350F;
+}
+.tip-box strong { display: block; font-weight: 600; margin-bottom: 4px; }
+
+/* Stage flow mini */
+.stage-flow {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.stage-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  font-size: .78rem;
+}
+.stage-num {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .65rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+/* Templates */
+.template-block {
+  background: var(--bg);
+  border: 1.5px dashed #D4C9BD;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-top: 8px;
+}
+.template-block .template-label {
+  font-size: .62rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.template-block [contenteditable] {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: .8rem;
+  line-height: 1.7;
+  outline: none;
+  min-height: 80px;
+  display: block;
+  background: transparent;
+  width: 100%;
+  color: #3D3530;
+}
+.template-block [contenteditable]:empty::before {
+  content: attr(data-ph);
+  color: #C8BFB5;
+  pointer-events: none;
+}
+
+/* Section divider inside module */
+.sect-div {
+  font-size: .65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .8px;
+  color: var(--muted);
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 2px;
+}
+
+/* Complete module button */
+.complete-btn {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: .8rem;
+  font-weight: 600;
+  padding: 11px 20px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  transition: all .2s;
+}
+.complete-btn.not-done { background: var(--line); color: var(--muted); }
+.complete-btn.done-state { background: #16A34A; color: #fff; }
+
+/* Responsive */
+@media (max-width: 1100px) {
+  .module-body { grid-template-columns: 1fr; }
+  .col-side { position: static; }
+  .modules-grid { grid-template-columns: 1fr 1fr; }
+  .ong-setup { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 720px) {
+  .sidebar { width: 200px; min-width: 200px; }
+  .module-hero, .module-body, #view-home { padding-left: 20px; padding-right: 20px; }
+  .modules-grid { grid-template-columns: 1fr; }
+}
+@media print {
+  .sidebar { display: none; }
+  .main { overflow: visible; height: auto; }
+  body { display: block; overflow: auto; }
+  .view { display: block !important; break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═════════════ SIDEBAR ═════════════ -->
+<nav class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon">🌱</div>
+    <div class="brand-name">Guia de Captação</div>
+    <div class="brand-sub">para líderes de ONGs</div>
+  </div>
+
+  <div class="sidebar-section">Início</div>
+  <div class="nav-item active" onclick="showView('home')" id="nav-home">
+    <div class="nav-dot" style="background:#E9873A"></div>
+    <span class="nav-label">Painel da minha ONG</span>
+  </div>
+
+  <div class="sidebar-section">Módulos</div>
+
+  <div class="nav-item" onclick="showView('m1')" id="nav-m1">
+    <div class="nav-dot" style="background:var(--c1)"></div>
+    <span class="nav-label">Jornada do Apoiador</span>
+    <div class="nav-check" id="chk-m1"></div>
+  </div>
+  <div class="nav-item" onclick="showView('m2')" id="nav-m2">
+    <div class="nav-dot" style="background:var(--c2)"></div>
+    <span class="nav-label">Captação online</span>
+    <div class="nav-check" id="chk-m2"></div>
+  </div>
+  <div class="nav-item" onclick="showView('m3')" id="nav-m3">
+    <div class="nav-dot" style="background:var(--c3)"></div>
+    <span class="nav-label">Manter quem já doa</span>
+    <div class="nav-check" id="chk-m3"></div>
+  </div>
+  <div class="nav-item" onclick="showView('m4')" id="nav-m4">
+    <div class="nav-dot" style="background:var(--c4)"></div>
+    <span class="nav-label">Campanhas</span>
+    <div class="nav-check" id="chk-m4"></div>
+  </div>
+  <div class="nav-item" onclick="showView('m5')" id="nav-m5">
+    <div class="nav-dot" style="background:var(--c5)"></div>
+    <span class="nav-label">Grandes doadores</span>
+    <div class="nav-check" id="chk-m5"></div>
+  </div>
+  <div class="nav-item" onclick="showView('m6')" id="nav-m6">
+    <div class="nav-dot" style="background:var(--c6)"></div>
+    <span class="nav-label">Agradecer de verdade</span>
+    <div class="nav-check" id="chk-m6"></div>
+  </div>
+  <div class="nav-item" onclick="showView('m7')" id="nav-m7">
+    <div class="nav-dot" style="background:var(--c7)"></div>
+    <span class="nav-label">Doação todo mês</span>
+    <div class="nav-check" id="chk-m7"></div>
+  </div>
+  <div class="nav-item" onclick="showView('m8')" id="nav-m8">
+    <div class="nav-dot" style="background:var(--c8)"></div>
+    <span class="nav-label">Envolver as pessoas</span>
+    <div class="nav-check" id="chk-m8"></div>
+  </div>
+  <div class="nav-item" onclick="showView('m9')" id="nav-m9">
+    <div class="nav-dot" style="background:var(--c9)"></div>
+    <span class="nav-label">Terça de Doar</span>
+    <div class="nav-check" id="chk-m9"></div>
+  </div>
+
+  <div class="sidebar-footer">
+    <button class="sidebar-btn btn-save" onclick="saveAll()">💾 Salvar progresso</button>
+    <button class="sidebar-btn btn-load" onclick="loadAll()">📂 Carregar</button>
+    <button class="sidebar-btn btn-print" onclick="window.print()">🖨 Imprimir</button>
+  </div>
+</nav>
+
+<!-- ═════════════ MAIN ═════════════ -->
+<div class="main">
+
+<!-- ──────────────────────────────────
+     HOME / DASHBOARD
+────────────────────────────────── -->
+<div class="view active" id="view-home">
+  <div id="view-home-inner">
+  <div class="dash-header">
+    <div class="dash-greeting">Olá, bem-vinda ao seu<br><span>guia de captação.</span></div>
+    <div class="dash-sub">Este é o seu espaço para organizar como a sua ONG vai encontrar, conquistar e manter as pessoas que acreditam na sua causa. Sem termos difíceis. Um passo de cada vez.</div>
+  </div>
+
+  <div class="ong-setup">
+    <div class="setup-field">
+      <label>Nome da ONG</label>
+      <div contenteditable="true" data-ph="Ex: Instituto Sementes" class="global-ong-name"></div>
+    </div>
+    <div class="setup-field">
+      <label>Nome da líder</label>
+      <div contenteditable="true" data-ph="Seu nome" class="global-leader-name"></div>
+    </div>
+    <div class="setup-field">
+      <label>Causa principal</label>
+      <div contenteditable="true" data-ph="Ex: Educação infantil em comunidades" class="global-cause"></div>
+    </div>
+    <div class="setup-field">
+      <label>Meta de apoiadores (este ano)</label>
+      <div contenteditable="true" data-ph="Ex: 50 mantenedores mensais" class="global-goal"></div>
+    </div>
+    <div class="setup-field">
+      <label>Meta de captação (R$/mês)</label>
+      <div contenteditable="true" data-ph="Ex: R$ 3.000/mês" class="global-target"></div>
+    </div>
+    <div class="setup-field">
+      <label>Atualizado em</label>
+      <div contenteditable="true" data-ph="dd/mm/aaaa" class="global-date"></div>
+    </div>
+  </div>
+
+  <div class="progress-section">
+    <div class="progress-title">Seu progresso nos módulos</div>
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-bar"></div></div>
+    <div class="progress-label" id="prog-label">0 de 9 módulos concluídos</div>
+  </div>
+
+  <div class="modules-grid">
+    <div class="module-card" style="--accent:var(--c1)" onclick="showView('m1')">
+      <div class="mc-badge start" id="badge-m1">Começar</div>
+      <div class="mc-icon">🗺️</div>
+      <div class="mc-title">Jornada do Apoiador</div>
+      <div class="mc-desc">Como uma pessoa estranha vira mantenedor fiel da sua causa.</div>
+    </div>
+    <div class="module-card" style="--accent:var(--c2)" onclick="showView('m2')">
+      <div class="mc-badge start" id="badge-m2">Começar</div>
+      <div class="mc-icon">💻</div>
+      <div class="mc-title">Captação online</div>
+      <div class="mc-desc">Como pedir doações pela internet sem parecer chato ou desesperado.</div>
+    </div>
+    <div class="module-card" style="--accent:var(--c3)" onclick="showView('m3')">
+      <div class="mc-badge start" id="badge-m3">Começar</div>
+      <div class="mc-icon">🤝</div>
+      <div class="mc-title">Manter quem já doa</div>
+      <div class="mc-desc">O doador que você tem vale mais do que o que você ainda não tem.</div>
+    </div>
+    <div class="module-card" style="--accent:var(--c4)" onclick="showView('m4')">
+      <div class="mc-badge start" id="badge-m4">Começar</div>
+      <div class="mc-icon">📣</div>
+      <div class="mc-title">Campanhas</div>
+      <div class="mc-desc">Como criar um momento de doação com começo, meio e fim.</div>
+    </div>
+    <div class="module-card" style="--accent:var(--c5)" onclick="showView('m5')">
+      <div class="mc-badge start" id="badge-m5">Começar</div>
+      <div class="mc-icon">🌟</div>
+      <div class="mc-title">Grandes doadores</div>
+      <div class="mc-desc">Como encontrar e cultivar quem pode fazer uma doação maior.</div>
+    </div>
+    <div class="module-card" style="--accent:var(--c6)" onclick="showView('m6')">
+      <div class="mc-badge start" id="badge-m6">Começar</div>
+      <div class="mc-icon">💌</div>
+      <div class="mc-title">Agradecer de verdade</div>
+      <div class="mc-desc">Gratidão estratégica: como fazer o doador sentir que foi a melhor decisão.</div>
+    </div>
+    <div class="module-card" style="--accent:var(--c7)" onclick="showView('m7')">
+      <div class="mc-badge start" id="badge-m7">Começar</div>
+      <div class="mc-icon">🔄</div>
+      <div class="mc-title">Doação todo mês</div>
+      <div class="mc-desc">Como criar um grupo de pessoas que apoiam todo mês, sem você precisar pedir.</div>
+    </div>
+    <div class="module-card" style="--accent:var(--c8)" onclick="showView('m8')">
+      <div class="mc-badge start" id="badge-m8">Começar</div>
+      <div class="mc-icon">🔥</div>
+      <div class="mc-title">Envolver as pessoas</div>
+      <div class="mc-desc">Como transformar seguidores em pessoas que se importam de verdade.</div>
+    </div>
+    <div class="module-card" style="--accent:var(--c9)" onclick="showView('m9')">
+      <div class="mc-badge start" id="badge-m9">Começar</div>
+      <div class="mc-icon">🎁</div>
+      <div class="mc-title">Terça de Doar</div>
+      <div class="mc-desc">Como aproveitar o maior dia de doações do mundo a favor da sua causa.</div>
+    </div>
+  </div>
+  </div>
+</div>
+
+<!-- ──────────────────────────────────
+     M1: JORNADA DO APOIADOR
+────────────────────────────────── -->
+<div class="view" id="view-m1">
+  <div class="module-view">
+    <div class="module-hero" style="border-left: 4px solid var(--c1)">
+      <div class="hero-icon-wrap" style="background:var(--c1l)">🗺️</div>
+      <div class="hero-text">
+        <h1>Jornada do Apoiador</h1>
+        <div class="hero-why">Uma pessoa não vira doadora do nada. Ela passa por etapas: primeiro te conhece, depois te segue, depois confia, e só então doa. Entender esse caminho muda tudo na forma como você se comunica.</div>
+        <span class="hero-plain" style="background:var(--c1l);color:var(--c1)">Em linguagem simples: o caminho de estranho até fã que paga</span>
+      </div>
+    </div>
+    <div class="module-body">
+      <div class="col-main">
+
+        <div class="block">
+          <div class="block-head">
+            <div class="block-head-icon" style="background:var(--c1l)">👤</div>
+            <h3>Quem é a sua líder pública? (você)</h3>
+          </div>
+          <div class="block-body">
+            <div class="tip-box"><strong>Por que isso importa</strong>Pessoas doam para pessoas, não para logos. Antes de qualquer campanha, você precisa estar clara sobre quem você é publicamente e por que a sua história conecta com a causa.</div>
+            <div style="margin-top:14px">
+              <span class="edit-label">Sua missão em uma frase (sem palavrão técnico)</span>
+              <div class="edit-area"><div contenteditable="true" data-ph="Ex: Eu ajudo crianças que cresceram como eu cresci — sem acesso — a terem uma chance real na educação."></div></div>
+            </div>
+            <div style="margin-top:12px">
+              <span class="edit-label">Por que VOCÊ cuida dessa causa? (a história real)</span>
+              <div class="edit-area"><div contenteditable="true" data-ph="Conte o que aconteceu com você ou alguém próximo que te fez criar essa ONG. Isso é ouro para captação."></div></div>
+            </div>
+            <div style="margin-top:12px">
+              <span class="edit-label">Onde você aparece publicamente</span>
+              <div class="edit-area"><div contenteditable="true" data-ph="Ex: Instagram (diário), YouTube (quinzenal), lives no WhatsApp (mensal)"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="block">
+          <div class="block-head">
+            <div class="block-head-icon" style="background:var(--c1l)">🪜</div>
+            <h3>As 5 etapas da jornada — preencha cada uma</h3>
+          </div>
+          <div class="block-body">
+            <div class="stage-flow">
+              <div class="stage-step">
+                <div class="stage-num" style="background:var(--c1)">1</div>
+                <div style="flex:1">
+                  <strong style="font-size:.78rem">Nunca me ouviu falar</strong>
+                  <div class="edit-area" style="margin-top:6px"><div contenteditable="true" data-ph="Como essa pessoa vai te encontrar? Reels, indicação, evento, post compartilhado?"></div></div>
+                </div>
+              </div>
+              <div class="stage-step">
+                <div class="stage-num" style="background:var(--c2)">2</div>
+                <div style="flex:1">
+                  <strong style="font-size:.78rem">Me segue mas ainda não doou</strong>
+                  <div class="edit-area" style="margin-top:6px"><div contenteditable="true" data-ph="O que você vai oferecer para ela entrar na sua lista de e-mail ou WhatsApp? (ex: relatório de impacto, grupo exclusivo)"></div></div>
+                </div>
+              </div>
+              <div class="stage-step">
+                <div class="stage-num" style="background:var(--c3)">3</div>
+                <div style="flex:1">
+                  <strong style="font-size:.78rem">Fez a primeira doação</strong>
+                  <div class="edit-area" style="margin-top:6px"><div contenteditable="true" data-ph="O que acontece nas 48h depois da primeira doação? (esse momento é crítico — descreva sua sequência de agradecimento)"></div></div>
+                </div>
+              </div>
+              <div class="stage-step">
+                <div class="stage-num" style="background:var(--c4)">4</div>
+                <div style="flex:1">
+                  <strong style="font-size:.78rem">Doa todo mês (mantenedor)</strong>
+                  <div class="edit-area" style="margin-top:6px"><div contenteditable="true" data-ph="Como você vai fazer com que ele se sinta parte de um grupo especial? Grupo VIP, relatório exclusivo, chamada pessoal?"></div></div>
+                </div>
+              </div>
+              <div class="stage-step">
+                <div class="stage-num" style="background:var(--c5)">5</div>
+                <div style="flex:1">
+                  <strong style="font-size:.78rem">Fala da sua ONG para outros (embaixador)</strong>
+                  <div class="edit-area" style="margin-top:6px"><div contenteditable="true" data-ph="Como você vai convidar mantenedores para captarem por você? (ex: campanha de aniversário, kit de embaixador)"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="col-side">
+        <div class="block">
+          <div class="block-head">
+            <div class="block-head-icon" style="background:var(--c1l)">✅</div>
+            <h3>O que fazer esta semana</h3>
+          </div>
+          <div class="block-body">
+            <div class="checklist" id="cl-m1">
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Escrever minha missão em uma frase</span></div>
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Escrever a história de por que criei a ONG</span></div>
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Definir onde vou aparecer e com que frequência</span></div>
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Descrever o que ofereço para quem me segue entrar na minha lista</span></div>
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Criar minha sequência de 48h após a primeira doação</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="block">
+          <div class="block-head"><div class="block-head-icon" style="background:var(--c1l)">📊</div><h3>Meus números</h3></div>
+          <div class="block-body">
+            <div class="metric-row">
+              <div class="metric-box"><label>Seguidores hoje</label><div contenteditable="true"></div></div>
+              <div class="metric-box"><label>Leads (e-mail/WhatsApp)</label><div contenteditable="true"></div></div>
+              <div class="metric-box"><label>Doadores ativos</label><div contenteditable="true"></div></div>
+              <div class="metric-box"><label>Mantenedores mensais</label><div contenteditable="true"></div></div>
+            </div>
+          </div>
+        </div>
+        <button class="complete-btn not-done" id="done-m1" onclick="markDone('m1')">Marcar módulo como concluído</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ──────────────────────────────────
+     M2: CAPTAÇÃO ONLINE
+────────────────────────────────── -->
+<div class="view" id="view-m2">
+  <div class="module-view">
+    <div class="module-hero" style="border-left: 4px solid var(--c2)">
+      <div class="hero-icon-wrap" style="background:var(--c2l)">💻</div>
+      <div class="hero-text">
+        <h1>Captação online</h1>
+        <div class="hero-why">Pedir doações pela internet não é sobre ter um site bonito. É sobre fazer a pessoa certa encontrar você, confiar em você e dar o clique. Cada passo pode ser melhorado.</div>
+        <span class="hero-plain" style="background:var(--c2l);color:var(--c2)">Em linguagem simples: como pedir dinheiro sem parecer chato</span>
+      </div>
+    </div>
+    <div class="module-body">
+      <div class="col-main">
+        <div class="block">
+          <div class="block-head"><div class="block-head-icon" style="background:var(--c2l)">🔗</div><h3>Onde as pessoas podem doar para você?</h3></div>
+          <div class="block-body">
+            <div class="tip-box"><strong>A regra mais importante</strong>Se a pessoa precisar de mais de 2 cliques para chegar até o botão de doação, você perdeu ela. Simplifique ao máximo.</div>
+            <div style="margin-top:12px">
+              <span class="edit-label">Link principal de doação (cole aqui quando tiver)</span>
+              <div class="edit-area"><div contenteditable="true" data-ph="Ex: doare.org/minha-ong ou apoia.se/minha-ong ou vakinha.com.br/causa"></div></div>
+            </div>
+            <div style="margin-top:12px">
+              <span class="edit-label">Onde esse link aparece?</span>
+              <div class="edit-area"><div contenteditable="true" data-ph="Ex: Link na bio do Instagram, botão no site, assinatura do e-mail, link fixado no WhatsApp Business"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="block">
+          <div class="block-head"><div class="block-head-icon" style="background:var(--c2l)">💬</div><h3>Como pedir sem parecer chato</h3></div>
+          <div class="block-body">
+            <div class="info-pill" style="background:var(--c2l)">
+              <span class="pill-icon">💡</span>
+              <div class="pill-text"><strong>A fórmula que funciona</strong>Conte a história de um beneficiado real → mostre o impacto concreto → diga exatamente quanto resolve o problema → convide para ajudar.</div>
+            </div>
+            <span class="edit-label">Escreva um pedido de doação usando essa fórmula</span>
+            <div class="template-block">
+              <div class="template-label">Rascunho do seu pedido</div>
+              <div contenteditable="true" data-ph="Ex: 'A Maria tinha 8 anos e nunca tinha segurado um livro. Hoje ela lê para a mãe antes de dormir. Com R$30 por mês, uma criança como ela ganha acesso a aulas, material e merenda. Você topa fazer parte disso?'"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="block">
+          <div class="block-head"><div class="block-head-icon" style="background:var(--c2l)">💰</div><h3>Valores sugeridos para doação</h3></div>
+          <div class="block-body">
+            <div class="tip-box"><strong>Por que definir valores específicos?</strong>Quando você mostra o que cada valor faz na prática, a decisão fica fácil. "R$15 paga o material de uma criança por um mês" é infinitamente mais poderoso do que "qualquer valor ajuda".</div>
+            <div style="margin-top:12px" class="metric-row">
+              <div class="metric-box"><label>Valor pequeno (R$)</label><div contenteditable="true"></div></div>
+              <div class="metric-box"><label>O que resolve</label><div contenteditable="true"></div></div>
+              <div class="metric-box"><label>Valor médio (R$)</label><div contenteditable="true"></div></div>
+              <div class="metric-box"><label>O que resolve</label><div contenteditable="true"></div></div>
+            </div>
+            <div class="metric-row" style="margin-top:10px">
+              <div class="metric-box"><label>Valor alto (R$)</label><div contenteditable="true"></div></div>
+              <div class="metric-box"><label>O que resolve</label><div contenteditable="true"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-side">
+        <div class="block">
+          <div class="block-head"><div class="block-head-icon" style="background:var(--c2l)">✅</div><h3>O que fazer esta semana</h3></div>
+          <div class="block-body">
+            <div class="checklist">
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Criar ou revisar minha página de doação</span></div>
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Colocar link de doação em todos os perfis</span></div>
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Escrever meu primeiro pedido usando a fórmula</span></div>
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Definir os 3 valores sugeridos com o impacto de cada um</span></div>
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Testar o processo de doação do ponto de vista do doador</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="block">
+          <div class="block-head"><div class="block-head-icon" style="background:var(--c2l)">📊</div><h3>Meus números</h3></div>
+          <div class="block-body">
+            <div class="metric-row">
+              <div class="metric-box"><label>Doações este mês</label><div contenteditable="true"></div></div>
+              <div class="metric-box"><label>Total arrecadado (R$)</label><div contenteditable="true"></div></div>
+              <div class="metric-box"><label>Ticket médio (R$)</label><div contenteditable="true"></div></div>
+              <div class="metric-box"><label>Cliques no link</label><div contenteditable="true"></div></div>
+            </div>
+          </div>
+        </div>
+        <button class="complete-btn not-done" id="done-m2" onclick="markDone('m2')">Marcar módulo como concluído</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ──────────────────────────────────
+     M3: RETENÇÃO
+────────────────────────────────── -->
+<div class="view" id="view-m3">
+  <div class="module-view">
+    <div class="module-hero" style="border-left: 4px solid var(--c3)">
+      <div class="hero-icon-wrap" style="background:var(--c3l)">🤝</div>
+      <div class="hero-text">
+        <h1>Manter quem já doa</h1>
+        <div class="hero-why">Pesquisas mostram que conseguir um novo doador custa até 5 vezes mais do que manter um que já existe. Antes de correr atrás de gente nova, cuide de quem já está com você.</div>
+        <span class="hero-plain" style="background:var(--c3l);color:var(--c3)">Em linguagem simples: não deixe quem já acreditou em você sumir</span>
+      </div>
+    </div>
+    <div class="module-body">
+      <div class="col-main">
+        <div class="block">
+          <div class="block-head"><div class="block-head-icon" style="background:var(--c3l)">📋</div><h3>Quem são seus doadores hoje?</h3></div>
+          <div class="block-body">
+            <div class="tip-box"><strong>Primeiro passo</strong>Você precisa saber quem são, quando doaram pela última vez e se estão ativos. Mesmo que seja uma lista simples no caderno ou num Google Sheets.</div>
+            <span class="edit-label">Como você registra seus doadores hoje?</span>
+            <div class="edit-area"><div contenteditable="true" data-ph="Ex: Tenho uma planilha no Google Sheets com nome, e-mail, valor e data da última doação. Ou: ainda não tenho — vou criar."></div></div>
+            <span class="edit-label" style="margin-top:12px">Quantos doadores você tem e há quanto tempo estão com você?</span>
+            <div class="edit-area"><div contenteditable="true" data-ph="Ex: 23 doadores. 8 doam há mais de 1 ano. 10 doaram só uma vez. 5 pararam há mais de 3 meses."></div></div>
+          </div>
+        </div>
+
+        <div class="block">
+          <div class="block-head"><div class="block-head-icon" style="background:var(--c3l)">💞</div><h3>O que você faz para manter o vínculo?</h3></div>
+          <div class="block-body">
+            <div class="info-pill" style="background:var(--c3l)">
+              <span class="pill-icon">🧠</span>
+              <div class="pill-text"><strong>O que a ciência diz</strong>Doadores que recebem um relatório de impacto têm 2x mais chance de renovar. Doadores que recebem uma mensagem pessoal têm 4x mais chance. Você não precisa de sistema caro — precisa de consistência.</div>
+            </div>
+            <span class="edit-label">Seu ritual mensal com mantenedores</span>
+            <div class="edit-area"><div contenteditable="true" data-ph="Ex: Todo dia 5 do mês envio um áudio de 1 minuto para o grupo de mantenedores contando o que aconteceu naquele mês."></div></div>
+            <span class="edit-label" style="margin-top:12px">O que você faz quando alguém para de doar?</span>
+            <div class="edit-area"><div contenteditable="true" data-ph="Ex: Quando percebo que alguém não abriu meu e-mail por 2 meses, envio uma mensagem pessoal perguntando se está tudo bem."></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-side">
+        <div class="block">
+          <div class="block-head"><div class="block-head-icon" style="background:var(--c3l)">✅</div><h3>O que fazer esta semana</h3></div>
+          <div class="block-body">
+            <div class="checklist">
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Listar todos os meus doadores ativos</span></div>
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Identificar quem não doa há mais de 60 dias</span></div>
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Mandar mensagem pessoal para os que sumiram</span></div>
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Criar um grupo exclusivo para mantenedores</span></div>
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Definir o que vou comunicar mensalmente para eles</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="block">
+          <div class="block-head"><div class="block-head-icon" style="background:var(--c3l)">📊</div><h3>Meus números</h3></div>
+          <div class="block-body">
+            <div class="metric-row">
+              <div class="metric-box"><label>Doadores ativos</label><div contenteditable="true"></div></div>
+              <div class="metric-box"><label>Inativos (+60 dias)</label><div contenteditable="true"></div></div>
+              <div class="metric-box"><label>Taxa de retenção</label><div contenteditable="true"></div></div>
+              <div class="metric-box"><label>Tempo médio de permanência</label><div contenteditable="true"></div></div>
+            </div>
+          </div>
+        </div>
+        <button class="complete-btn not-done" id="done-m3" onclick="markDone('m3')">Marcar módulo como concluído</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ──────────────────────────────────
+     M4: CAMPANHAS
+────────────────────────────────── -->
+<div class="view" id="view-m4">
+  <div class="module-view">
+    <div class="module-hero" style="border-left: 4px solid var(--c4)">
+      <div class="hero-icon-wrap" style="background:var(--c4l)">📣</div>
+      <div class="hero-text">
+        <h1>Campanhas</h1>
+        <div class="hero-why">Uma campanha é um pedido de doação com começo, meio, fim e uma razão clara para acontecer agora. Sem urgência real, não há ação. Campanhas criam o momento que faltava.</div>
+        <span class="hero-plain" style="background:var(--c4l);color:var(--c4)">Em linguagem simples: como criar um evento de doação que funciona</span>
+      </div>
+    </div>
+    <div class="module-body">
+      <div class="col-main">
+        <div class="block">
+          <div class="block-head"><div class="block-head-icon" style="background:var(--c4l)">🗓️</div><h3>Planejar uma campanha do zero</h3></div>
+          <div class="block-body">
+            <div class="tip-box"><strong>A anatomia de uma campanha que funciona</strong>Toda boa campanha responde 5 perguntas: Por quê agora? Para quem? Quanto queremos arrecadar? O que acontece se a meta for batida? Como as pessoas vão saber?</div>
+            <span class="edit-label">Nome da campanha</span>
+            <div class="edit-area"><div contenteditable="true" data-ph="Ex: 'Volta às aulas com a gente' — Janeiro 2025"></div></div>
+            <span class="edit-label" style="margin-top:12px">Por que agora? (a urgência real)</span>
+            <div class="edit-area"><div contenteditable="true" data-ph="Ex: Em fevereiro começam as aulas e temos 30 crianças sem material. Precisamos de R$1.500 até o dia 31 de janeiro."></div></div>
+            <span class="edit-label" style="margin-top:12px">Meta e o que ela representa</span>
+            <div class="edit-area"><div contenteditable="true" data-ph="Ex: Meta: R$1.500 — isso cobre material para 30 crianças por um semestre. Com R$50, uma criança está coberta."></div></div>
+            <span class="edit-label" style="margin-top:12px">Cronograma da campanha</span>
+            <div class="edit-area"><div contenteditable="true" data-ph="Dia 1: Anúncio da campanha + história de um beneficiado&#10;Dia 5: Atualização do termômetro de meta&#10;Dia 10: Depoimento de um doador&#10;Dia 14: Últimos dias — senso de urgência&#10;Dia 15: Resultado + agradecimento público"></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-side">
+        <div class="block">
+          <div class="block-head"><div class="block-head-icon" style="background:var(--c4l)">✅</div><h3>O que fazer esta semana</h3></div>
+          <div class="block-body">
+            <div class="checklist">
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Definir a próxima campanha e a data</span></div>
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Escrever a urgência real da campanha</span></div>
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Criar meta com valor tangível</span></div>
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Montar o cronograma de comunicação</span></div>
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Preparar imagem do termômetro ou barra de progresso</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="block">
+          <div class="block-head"><div class="block-head-icon" style="background:var(--c4l)">📊</div><h3>Resultados da última campanha</h3></div>
+          <div class="block-body">
+            <div class="metric-row">
+              <div class="metric-box"><label>Meta (R$)</label><div contenteditable="true"></div></div>
+              <div class="metric-box"><label>Arrecadado (R$)</label><div contenteditable="true"></div></div>
+              <div class="metric-box"><label>Novos doadores</label><div contenteditable="true"></div></div>
+              <div class="metric-box"><label>Duração (dias)</label><div contenteditable="true"></div></div>
+            </div>
+          </div>
+        </div>
+        <button class="complete-btn not-done" id="done-m4" onclick="markDone('m4')">Marcar módulo como concluído</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ──────────────────────────────────
+     M5: GRANDES DOADORES
+────────────────────────────────── -->
+<div class="view" id="view-m5">
+  <div class="module-view">
+    <div class="module-hero" style="border-left: 4px solid var(--c5)">
+      <div class="hero-icon-wrap" style="background:var(--c5l)">🌟</div>
+      <div class="hero-text">
+        <h1>Grandes doadores</h1>
+        <div class="hero-why">Um grande doador não é necessariamente o mais rico — é quem tem mais capacidade e motivação para dar. Cultivar essa relação é mais sobre escuta e paciência do que sobre pedir dinheiro.</div>
+        <span class="hero-plain" style="background:var(--c5l);color:var(--c5)">Em linguagem simples: como encontrar quem pode dar mais — e como tratar essa pessoa</span>
+      </div>
+    </div>
+    <div class="module-body">
+      <div class="col-main">
+        <div class="block">
+          <div class="block-head"><div class="block-head-icon" style="background:var(--c5l)">🔍</div><h3>Quem pode ser um grande doador da sua ONG?</h3></div>
+          <div class="block-body">
+            <div class="tip-box"><strong>Onde procurar</strong>Olhe para dentro primeiro. Seus mantenedores mais fiéis, ex-beneficiados que cresceram, pessoas na sua rede pessoal que já admiram seu trabalho. Grande doador não começa com R$10.000 — começa com alguém que doa R$200 há 3 anos e ama você.</div>
+            <span class="edit-label">Liste 3 a 5 pessoas que poderiam ser grandes doadoras</span>
+            <div class="edit-area"><div contenteditable="true" data-ph="Nome / Conexão com a causa / Por que faz sentido abordá-la"></div></div>
+            <span class="edit-label" style="margin-top:12px">O que você pode oferecer para um grande doador que é diferente dos outros?</span>
+            <div class="edit-area"><div contenteditable="true" data-ph="Ex: Visita à operação, relatório personalizado, nome em uma sala ou projeto, reunião trimestral com a líder, papel de consultor honorário."></div></div>
+          </div>
+        </div>
+
+        <div class="block">
+          <div class="block-head"><div class="block-head-icon" style="background:var(--c5l)">🌱</div><h3>Como cultivar — o passo a passo</h3></div>
+          <div class="block-body">
+            <div class="info-pill" style="background:var(--c5l)">
+              <span class="pill-icon">⏳</span>
+              <div class="pill-text"><strong>Regra de ouro</strong>Não peça na primeira conversa. Nem na segunda. Construa o relacionamento antes. A regra prática: 3 contatos de valor (sem pedir nada) antes do primeiro pedido.</div>
+            </div>
+            <span class="edit-label">Seu plano de cultivo em 90 dias para um candidato</span>
+            <div class="edit-area"><div contenteditable="true" data-ph="Mês 1: Compartilhar um resultado impactante / convidar para visita&#10;Mês 2: Reunião de troca — ouvir o que ele pensa sobre a causa&#10;Mês 3: Apresentar o projeto específico e fazer o pedido com valor definido"></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-side">
+        <div class="block">
+          <div class="block-head"><div class="block-head-icon" style="background:var(--c5l)">✅</div><h3>O que fazer esta semana</h3></div>
+          <div class="block-body">
+            <div class="checklist">
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Listar 3 candidatos a grandes doadores</span></div>
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Entrar em contato com um deles esta semana (sem pedir nada)</span></div>
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Definir o que ofereço de especial para esse grupo</span></div>
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Criar um plano de 90 dias para o candidato principal</span></div>
+            </div>
+          </div>
+        </div>
+        <button class="complete-btn not-done" id="done-m5" onclick="markDone('m5')">Marcar módulo como concluído</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ──────────────────────────────────
+     M6: AGRADECIMENTO
+────────────────────────────────── -->
+<div class="view" id="view-m6">
+  <div class="module-view">
+    <div class="module-hero" style="border-left: 4px solid var(--c6)">
+      <div class="hero-icon-wrap" style="background:var(--c6l)">💌</div>
+      <div class="hero-text">
+        <h1>Agradecer de verdade</h1>
+        <div class="hero-why">A maioria das ONGs agradece com um e-mail automático. Isso é o mínimo. O agradecimento que faz diferença é o que mostra que a doação chegou, que importou e que transformou algo real.</div>
+        <span class="hero-plain" style="background:var(--c6l);color:var(--c6)">Em linguagem simples: como fazer o doador sentir que fez a coisa certa</span>
+      </div>
+    </div>
+    <div class="module-body">
+      <div class="col-main">
+        <div class="block">
+          <div class="block-head"><div class="block-head-icon" style="background:var(--c6l)">⏱️</div><h3>A sequência de agradecimento em 72 horas</h3></div>
+          <div class="block-body">
+            <div class="tip-box"><strong>Por que 72 horas?</strong>A decisão de renovar a doação começa nos primeiros 3 dias. Se o doador não sentir nada depois de dar, ele provavelmente não vai dar de novo.</div>
+            <span class="edit-label">0 a 1 hora — o que acontece imediatamente após a doação</span>
+            <div class="edit-area"><div contenteditable="true" data-ph="Ex: E-mail automático com o nome do doador, o valor exato e o que aquele valor faz na prática. Sem template genérico."></div></div>
+            <span class="edit-label" style="margin-top:12px">24 horas — mensagem pessoal</span>
+            <div class="edit-area"><div contenteditable="true" data-ph="Ex: Áudio de 30 segundos da líder pelo WhatsApp dizendo obrigada pelo nome e mencionando a causa específica."></div></div>
+            <span class="edit-label" style="margin-top:12px">72 horas — prova de impacto</span>
+            <div class="edit-area"><div contenteditable="true" data-ph="Ex: Foto ou vídeo curto mostrando onde a doação foi aplicada. 'Sua doação já está aqui — olha só.'"></div></div>
+          </div>
+        </div>
+
+        <div class="block">
+          <div class="block-head"><div class="block-head-icon" style="background:var(--c6l)">✍️</div><h3>Escreva seu modelo de agradecimento</h3></div>
+          <div class="block-body">
+            <div class="template-block">
+              <div class="template-label">Modelo de e-mail / mensagem de agradecimento</div>
+              <div contenteditable="true" data-ph="[Nome do doador],&#10;&#10;Você acabou de fazer algo que vai durar mais do que essa semana.&#10;&#10;Com os seus R$[valor], [descreva o impacto concreto].&#10;&#10;Obrigada por acreditar nisso junto comigo.&#10;&#10;[Sua assinatura com nome e foto]"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-side">
+        <div class="block">
+          <div class="block-head"><div class="block-head-icon" style="background:var(--c6l)">✅</div><h3>O que fazer esta semana</h3></div>
+          <div class="block-body">
+            <div class="checklist">
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Criar meu e-mail automático de agradecimento</span></div>
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Gravar um áudio-modelo de agradecimento pessoal</span></div>
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Criar rotina de enviar prova de impacto em 72h</span></div>
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Agradecer pessoalmente os 5 doadores mais antigos</span></div>
+            </div>
+          </div>
+        </div>
+        <button class="complete-btn not-done" id="done-m6" onclick="markDone('m6')">Marcar módulo como concluído</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ──────────────────────────────────
+     M7: DOAÇÃO MENSAL
+────────────────────────────────── -->
+<div class="view" id="view-m7">
+  <div class="module-view">
+    <div class="module-hero" style="border-left: 4px solid var(--c7)">
+      <div class="hero-icon-wrap" style="background:var(--c7l)">🔄</div>
+      <div class="hero-text">
+        <h1>Doação todo mês</h1>
+        <div class="hero-why">Uma doação mensal de R$30 vale mais do que uma de R$360 por ano. Sabe por quê? Porque você sabe o que vai entrar, pode planejar, e o doador vira mantenedor — não só contribuinte.</div>
+        <span class="hero-plain" style="background:var(--c7l);color:var(--c7)">Em linguagem simples: como criar uma renda previsível para a ONG</span>
+      </div>
+    </div>
+    <div class="module-body">
+      <div class="col-main">
+        <div class="block">
+          <div class="block-head"><div class="block-head-icon" style="background:var(--c7l)">🏠</div><h3>Como criar seu programa de mantenedores</h3></div>
+          <div class="block-body">
+            <div class="tip-box"><strong>O segredo</strong>Mantenedor não é apenas quem doa todo mês. É quem sente que pertence a algo. Dê um nome ao grupo, crie um senso de identidade. "Você é um dos 50 que mantêm essa causa viva" é muito mais poderoso que "você assinou o plano mensal".</div>
+            <span class="edit-label">Nome do seu grupo de mantenedores</span>
+            <div class="edit-area"><div contenteditable="true" data-ph="Ex: Guardiões da Leitura / Circulo de Raízes / Rede de Apoio / Os 50 que mudam vidas"></div></div>
+            <span class="edit-label" style="margin-top:12px">O que os mantenedores recebem de especial?</span>
+            <div class="edit-area"><div contenteditable="true" data-ph="Ex: Grupo exclusivo no WhatsApp com bastidores, relatório mensal em primeira mão, vídeo de agradecimento no aniversário, nome no site."></div></div>
+            <span class="edit-label" style="margin-top:12px">Como você vai lançar esse programa?</span>
+            <div class="edit-area"><div contenteditable="true" data-ph="Ex: Vídeo pessoal da líder explicando por que precisa de mantenedores + meta de 30 pessoas no primeiro mês + CTA direto para a página de doação recorrente."></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-side">
+        <div class="block">
+          <div class="block-head"><div class="block-head-icon" style="background:var(--c7l)">✅</div><h3>O que fazer esta semana</h3></div>
+          <div class="block-body">
+            <div class="checklist">
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Criar nome e identidade do grupo de mantenedores</span></div>
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Definir o que os mantenedores recebem de especial</span></div>
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Verificar se minha plataforma de doação aceita recorrência</span></div>
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Gravar vídeo de lançamento do programa</span></div>
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Convidar pessoalmente os 5 primeiros mantenedores</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="block">
+          <div class="block-head"><div class="block-head-icon" style="background:var(--c7l)">📊</div><h3>Meus números</h3></div>
+          <div class="block-body">
+            <div class="metric-row">
+              <div class="metric-box"><label>Mantenedores ativos</label><div contenteditable="true"></div></div>
+              <div class="metric-box"><label>Receita recorrente (R$/mês)</label><div contenteditable="true"></div></div>
+            </div>
+          </div>
+        </div>
+        <button class="complete-btn not-done" id="done-m7" onclick="markDone('m7')">Marcar módulo como concluído</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ──────────────────────────────────
+     M8: ENGAJAMENTO
+────────────────────────────────── -->
+<div class="view" id="view-m8">
+  <div class="module-view">
+    <div class="module-hero" style="border-left: 4px solid var(--c8)">
+      <div class="hero-icon-wrap" style="background:var(--c8l)">🔥</div>
+      <div class="hero-text">
+        <h1>Envolver as pessoas</h1>
+        <div class="hero-why">Engajamento não é curtida. É quando alguém comenta, compartilha, responde, pede mais. Essas são as pessoas que vão donar. A lógica é simples: quanto mais elas interagem, mais elas se importam.</div>
+        <span class="hero-plain" style="background:var(--c8l);color:var(--c8)">Em linguagem simples: como fazer seguidores se importarem de verdade</span>
+      </div>
+    </div>
+    <div class="module-body">
+      <div class="col-main">
+        <div class="block">
+          <div class="block-head"><div class="block-head-icon" style="background:var(--c8l)">📱</div><h3>Tipos de conteúdo que geram envolvimento real</h3></div>
+          <div class="block-body">
+            <div class="info-pill" style="background:var(--c8l)">
+              <span class="pill-icon">📊</span>
+              <div class="pill-text"><strong>O que realmente funciona para ONGs</strong>Histórias de beneficiados reais, bastidores honestos (incluindo dificuldades), perguntas que pedem opinião da audiência, conquistas com dados concretos, presença da líder como pessoa — não como porta-voz.</div>
+            </div>
+            <span class="edit-label">Que tipo de conteúdo você vai criar regularmente?</span>
+            <div class="edit-area"><div contenteditable="true" data-ph="Ex: Segunda: bastidor da operação (foto com legenda)&#10;Quarta: história de um beneficiado (com permissão)&#10;Sexta: conquista da semana com número&#10;Sábado: post pessoal da líder"></div></div>
+            <span class="edit-label" style="margin-top:12px">Como você vai pedir para as pessoas compartilharem?</span>
+            <div class="edit-area"><div contenteditable="true" data-ph="Ex: Ao final de cada post impactante, adicionar 'Conhece alguém que se importaria com isso? Compartilha.' — simples e direto."></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-side">
+        <div class="block">
+          <div class="block-head"><div class="block-head-icon" style="background:var(--c8l)">✅</div><h3>O que fazer esta semana</h3></div>
+          <div class="block-body">
+            <div class="checklist">
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Definir a frequência de postagens que consigo manter</span></div>
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Escolher 1 beneficiado para contar a história esta semana</span></div>
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Fazer um post de bastidor honesto (pode ser uma dificuldade real)</span></div>
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Responder todos os comentários dos últimos 7 dias</span></div>
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Fazer uma pergunta para a audiência (no feed ou stories)</span></div>
+            </div>
+          </div>
+        </div>
+        <button class="complete-btn not-done" id="done-m8" onclick="markDone('m8')">Marcar módulo como concluído</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ──────────────────────────────────
+     M9: TERÇA DE DOAR
+────────────────────────────────── -->
+<div class="view" id="view-m9">
+  <div class="module-view">
+    <div class="module-hero" style="border-left: 4px solid var(--c9)">
+      <div class="hero-icon-wrap" style="background:var(--c9l)">🎁</div>
+      <div class="hero-text">
+        <h1>Terça de Doar</h1>
+        <div class="hero-why">A Terça-feira de Doar (Giving Tuesday) acontece toda primeira terça-feira depois do Dia de Ação de Graças dos EUA — geralmente no fim de novembro ou início de dezembro. É o maior dia de doações do mundo, e ONGs brasileiras ainda aproveitam pouco.</div>
+        <span class="hero-plain" style="background:var(--c9l);color:var(--c9)">Em linguagem simples: como aproveitar o maior dia de doações do mundo</span>
+      </div>
+    </div>
+    <div class="module-body">
+      <div class="col-main">
+        <div class="block">
+          <div class="block-head"><div class="block-head-icon" style="background:var(--c9l)">📅</div><h3>Planejamento para a Terça de Doar</h3></div>
+          <div class="block-body">
+            <div class="tip-box"><strong>O diferencial que poucos usam</strong>No Brasil, a data ainda não é saturada como nos EUA. Isso é uma vantagem. Quem chegar bem preparado, com uma campanha clara e uma meta visual, vai se destacar em um dia em que as pessoas já estão inclinadas a dar.</div>
+            <span class="edit-label">Sua meta para a Terça de Doar deste ano</span>
+            <div class="edit-area"><div contenteditable="true" data-ph="Ex: Arrecadar R$2.000 e conquistar 20 novos mantenedores mensais em 24 horas."></div></div>
+            <span class="edit-label" style="margin-top:12px">Seu plano de comunicação (4 semanas antes)</span>
+            <div class="edit-area"><div contenteditable="true" data-ph="4 semanas antes: Aviso de que a data está chegando + história da causa&#10;2 semanas antes: Campanha específica com meta visual&#10;1 semana antes: Urgência — 'falta 7 dias'&#10;Dia anterior: 'Amanhã é o dia'&#10;No dia: Atualização em tempo real do termômetro&#10;Após o dia: Agradecimento público com resultado"></div></div>
+            <span class="edit-label" style="margin-top:12px">Você vai buscar uma doação casada (matching gift)?</span>
+            <div class="edit-area"><div contenteditable="true" data-ph="Uma doação casada é quando uma empresa ou pessoa compromete a dobrar cada doação recebida no dia. Ex: 'A empresa X vai dobrar cada R$1 doado hoje'. Isso multiplica o impacto e incentiva quem ainda estava na dúvida. Você conhece alguém que toparia?"></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-side">
+        <div class="block">
+          <div class="block-head"><div class="block-head-icon" style="background:var(--c9l)">✅</div><h3>Checklist de preparação</h3></div>
+          <div class="block-body">
+            <div class="checklist">
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Anotar a data da Terça de Doar do ano atual</span></div>
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Definir meta específica para o dia</span></div>
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Buscar parceiro para doação casada (matching)</span></div>
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Preparar comunicação com 4 semanas de antecedência</span></div>
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Criar termômetro visual da meta</span></div>
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Agendar agradecimento público para o dia seguinte</span></div>
+            </div>
+          </div>
+        </div>
+        <button class="complete-btn not-done" id="done-m9" onclick="markDone('m9')">Marcar módulo como concluído</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<script>
+// ═══ NAVIGATION ═══
+const MODULES = ['m1','m2','m3','m4','m5','m6','m7','m8','m9'];
+let completed = {};
+
+function showView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('view-' + id).classList.add('active');
+  document.getElementById('nav-' + id).classList.add('active');
+  document.querySelector('.main').scrollTop = 0;
+}
+
+// ═══ CHECKLIST ═══
+function toggleCheck(el) {
+  el.classList.toggle('checked');
+  saveAll();
+}
+
+// ═══ COMPLETE MODULE ═══
+function markDone(id) {
+  completed[id] = !completed[id];
+  const btn = document.getElementById('done-' + id);
+  const chk = document.getElementById('chk-' + id);
+  const badge = document.getElementById('badge-' + id);
+  if (completed[id]) {
+    btn.textContent = '✓ Módulo concluído';
+    btn.className = 'complete-btn done-state';
+    if (chk) { chk.classList.add('done'); chk.textContent = '✓'; }
+    if (badge) { badge.textContent = 'Concluído'; badge.className = 'mc-badge done-b'; }
+  } else {
+    btn.textContent = 'Marcar módulo como concluído';
+    btn.className = 'complete-btn not-done';
+    if (chk) { chk.classList.remove('done'); chk.textContent = ''; }
+    if (badge) { badge.textContent = 'Começar'; badge.className = 'mc-badge start'; }
+  }
+  updateProgress();
+  saveAll();
+}
+
+function updateProgress() {
+  const done = MODULES.filter(m => completed[m]).length;
+  const pct = Math.round((done / MODULES.length) * 100);
+  document.getElementById('prog-bar').style.width = pct + '%';
+  document.getElementById('prog-label').textContent = done + ' de ' + MODULES.length + ' módulos concluídos (' + pct + '%)';
+}
+
+// ═══ SAVE / LOAD ═══
+function saveAll() {
+  const data = { completed, fields: {}, checks: [] };
+  document.querySelectorAll('[contenteditable]').forEach((el, i) => {
+    data.fields['f' + i] = el.innerHTML;
+  });
+  document.querySelectorAll('.check-item').forEach((el, i) => {
+    data.checks[i] = el.classList.contains('checked');
+  });
+  try { localStorage.setItem('ong_guia_v2', JSON.stringify(data)); } catch(e) {}
+}
+
+function loadAll() {
+  try {
+    const raw = localStorage.getItem('ong_guia_v2');
+    if (!raw) { alert('Nenhum rascunho encontrado.'); return; }
+    const data = JSON.parse(raw);
+    completed = data.completed || {};
+    document.querySelectorAll('[contenteditable]').forEach((el, i) => {
+      if (data.fields['f' + i] !== undefined) el.innerHTML = data.fields['f' + i];
+    });
+    document.querySelectorAll('.check-item').forEach((el, i) => {
+      if (data.checks[i]) el.classList.add('checked');
+      else el.classList.remove('checked');
+    });
+    MODULES.forEach(id => {
+      if (completed[id]) {
+        const btn = document.getElementById('done-' + id);
+        const chk = document.getElementById('chk-' + id);
+        const badge = document.getElementById('badge-' + id);
+        if (btn) { btn.textContent = '✓ Módulo concluído'; btn.className = 'complete-btn done-state'; }
+        if (chk) { chk.classList.add('done'); chk.textContent = '✓'; }
+        if (badge) { badge.textContent = 'Concluído'; badge.className = 'mc-badge done-b'; }
+      }
+    });
+    updateProgress();
+    alert('Carregado ✅');
+  } catch(e) { alert('Erro ao carregar. Tente novamente.'); }
+}
+
+// Auto-save on edits
+document.addEventListener('input', () => saveAll());
+</script>
+</body>
+</html>
