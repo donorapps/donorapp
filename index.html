@@ -211,7 +211,83 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); colo
 .progress-title { font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin-bottom: 10px; }
 
 @media (max-width: 1100px) { .module-body { grid-template-columns: 1fr; } .col-side { position: static; } .modules-grid { grid-template-columns: 1fr 1fr; } .ong-setup { grid-template-columns: 1fr 1fr; } }
-@media print { .sidebar { display: none; } .main { overflow: visible; height: auto; } body { display: block; } .view { display: block !important; } .setup-overlay, .sync-bar, .sync-status { display: none !important; } }
+
+/* ── MOBILE TOPBAR ── */
+.mobile-topbar {
+  display: none;
+  position: fixed; top: 0; left: 0; right: 0;
+  height: 52px; z-index: 900;
+  background: var(--sidebar);
+  align-items: center;
+  padding: 0 16px;
+  gap: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,.3);
+}
+.mobile-topbar .brand-name-m {
+  font-family: 'Playfair Display', serif;
+  font-size: .95rem; font-weight: 700;
+  color: #F5F0E8; flex: 1;
+}
+.hamburger {
+  width: 36px; height: 36px;
+  border-radius: 8px;
+  background: #2A2420;
+  border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 5px;
+  flex-shrink: 0;
+}
+.hamburger span {
+  display: block; width: 18px; height: 2px;
+  background: #F5F0E8; border-radius: 2px;
+  transition: all .25s;
+}
+.hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.hamburger.open span:nth-child(2) { opacity: 0; }
+.hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* ── SIDEBAR OVERLAY BACKDROP ── */
+.sidebar-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.5);
+  z-index: 910;
+  backdrop-filter: blur(2px);
+}
+.sidebar-overlay.visible { display: block; }
+
+@media (max-width: 768px) {
+  body { flex-direction: column; overflow: auto; height: auto; }
+  .mobile-topbar { display: flex; }
+  .sidebar {
+    position: fixed; top: 0; left: 0;
+    height: 100vh; z-index: 920;
+    transform: translateX(-100%);
+    transition: transform .28s cubic-bezier(.4,0,.2,1);
+    width: 280px; min-width: 0;
+  }
+  .sidebar.open { transform: translateX(0); }
+  .main { width: 100%; height: auto; overflow: visible; padding-top: 52px; }
+  .sync-bar { left: 0; }
+  .view.active { display: block; }
+  #view-home { padding: 24px 16px 48px; }
+  .module-hero { padding: 20px 16px 16px; }
+  .module-body { padding: 16px 16px 48px; }
+  .modules-grid { grid-template-columns: 1fr; }
+  .ong-setup { grid-template-columns: 1fr; }
+  .metric-row { grid-template-columns: 1fr 1fr; }
+  .setup-card { padding: 24px 20px; }
+}
+
+@media print {
+  .sidebar { display: none; }
+  .mobile-topbar { display: none; }
+  .sidebar-overlay { display: none !important; }
+  .main { overflow: visible; height: auto; padding-top: 0; }
+  body { display: block; }
+  .view { display: block !important; }
+  .setup-overlay, .sync-bar, .sync-status { display: none !important; }
+}
 </style>
 </head>
 <body>
@@ -246,8 +322,19 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); colo
   </div>
 </div>
 
+<!-- MOBILE TOPBAR -->
+<div class="mobile-topbar">
+  <button class="hamburger" id="hamburger" onclick="toggleSidebar()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="brand-name-m">🌱 Guia de Captação</div>
+</div>
+
+<!-- SIDEBAR BACKDROP -->
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
 <!-- SIDEBAR -->
-<nav class="sidebar">
+<nav class="sidebar" id="sidebar">
   <div class="sidebar-brand">
     <div class="brand-icon">🌱</div>
     <div class="brand-name">Guia de Captação</div>
@@ -666,12 +753,36 @@ async function connectSupabase() {
 const MODULES = ['m1','m2','m3','m4','m5','m6','m7','m8','m9'];
 let completed = {};
 
+// ── MOBILE SIDEBAR TOGGLE ──
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
+  const burger  = document.getElementById('hamburger');
+  const isOpen  = sidebar.classList.contains('open');
+  if (isOpen) { closeSidebar(); } else {
+    sidebar.classList.add('open');
+    overlay.classList.add('visible');
+    burger.classList.add('open');
+  }
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('visible');
+  document.getElementById('hamburger').classList.remove('open');
+}
+
 function showView(id) {
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.getElementById('view-'+id).classList.add('active');
   document.getElementById('nav-'+id).classList.add('active');
-  document.querySelector('.main').scrollTop=0;
+  // On mobile: close sidebar after navigation and scroll to top
+  if (window.innerWidth <= 768) {
+    closeSidebar();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } else {
+    document.querySelector('.main').scrollTop = 0;
+  }
 }
 
 // ── CHECKLIST ──
