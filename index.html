@@ -1049,8 +1049,10 @@ async function dbPull() {
       db.from('da_people').select('*').eq('org_id', orgId),
       db.from('da_interactions').select('*').eq('org_id', orgId).order('created_at', { ascending: false })
     ]);
-    if (pRes.data) people = pRes.data;
-    if (iRes.data) interactions = iRes.data;
+    // Só sobrescreve dados locais se o banco remoto tiver conteúdo
+    // Evita apagar seed/dados locais quando tabela está vazia
+    if (pRes.data && pRes.data.length > 0) people = pRes.data;
+    if (iRes.data && iRes.data.length > 0) interactions = iRes.data;
     saveLocal();
   } catch(e) {}
 }
@@ -1610,6 +1612,7 @@ async function connectDB() {
 function skipConfig() {
   localStorage.setItem('da_skipped', '1');
   document.getElementById('config-overlay').classList.remove('visible');
+  renderAll();
 }
 
 function showConfig() {
@@ -1620,7 +1623,9 @@ function showConfig() {
 //  SEED DATA (demo — 3 perfis reais)
 // ══════════════════════════════════════════════════════
 function seedDemo() {
+  // Não seed se já tem dados reais salvos
   if (people.length > 0) return;
+  if (localStorage.getItem('da_seeded')) return;
   const now = Date.now();
   people = [
     { id: uuid(), name: 'Camila', type: 'mantenedor',
@@ -1639,6 +1644,7 @@ function seedDemo() {
       notes_preview: 'Professora aposentada. Reforço de matemática 3x/semana. Não preenche presença. Reclama no grupo de pais.',
       created_at: new Date(now - 200*86400000).toISOString() },
   ];
+  localStorage.setItem('da_seeded', '1');
   saveLocal();
 }
 
@@ -1656,7 +1662,17 @@ function seedDemo() {
   initSwipe();
   initActions();
 
-  // 3. Load Supabase in background
+  // 3. Bloqueia gesto de voltar do browser (iOS/Android) no mobile
+  if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+    history.pushState({ page: 'app' }, '', window.location.href);
+    window.addEventListener('popstate', function() {
+      history.pushState({ page: 'app' }, '', window.location.href);
+      // Gesto de voltar → vai para Hoje em vez de fechar
+      switchView('hoje');
+    });
+  }
+
+  // 4. Load Supabase in background
   loadSB(async function() {
     // Check hardcoded keys
     if (typeof SB_URL !== 'undefined' && SB_URL !== 'COLE_SUA_URL_AQUI') {
@@ -1671,10 +1687,12 @@ function seedDemo() {
       await dbInit(url, key, org);
       await dbPull(); renderAll(); return;
     }
-    // First time, no keys — show config if not skipped
-    if (!localStorage.getItem('da_skipped')) {
-      setTimeout(() => document.getElementById('config-overlay').classList.add('visible'), 1000);
+    // Só mostra config se não tiver dados locais e não tiver pulado
+    const hasLocalData = people.length > 0;
+    if (!localStorage.getItem('da_skipped') && !hasLocalData) {
+      setTimeout(() => document.getElementById('config-overlay').classList.add('visible'), 800);
     }
+    // Se tem dados mas não tem banco, funciona offline silenciosamente
   });
 })();
 </script>
