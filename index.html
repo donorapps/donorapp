@@ -4,6 +4,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Guia DonorApp</title>
+<meta name="theme-color" content="#1C1917" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#F9F6F1" media="(prefers-color-scheme: light)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="DonorApp">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌱</text></svg>">
+<!-- Dark mode flicker prevention -->
+<script>
+  (function(){
+    const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if(dark) document.documentElement.setAttribute('data-theme','dark');
+  })();
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 
 <!-- ═══════════════════════════════════════
@@ -25,6 +39,23 @@
   --line:     #E5DFD6;
   --muted:    #9C8E82;
   --text:     #1C1917;
+  --accent:   #E9873A;
+  --tip-bg:   #FFFBEB;
+  --tip-border:#FDE68A;
+  --tip-text: #78350F;
+}
+[data-theme="dark"] {
+  --bg:       #0F0D0B;
+  --sidebar:  #100E0C;
+  --card:     #1A1714;
+  --line:     #2D2825;
+  --muted:    #6B5E54;
+  --text:     #EDE8E3;
+  --tip-bg:   #1C1610;
+  --tip-border:#3D2E10;
+  --tip-text: #D4A44C;
+}
+:root {
   --c1: #166534; --c2: #1E3A5F; --c3: #7C2D12;
   --c4: #5B21B6; --c5: #92400E; --c6: #065F46;
   --c7: #1E40AF; --c8: #831843; --c9: #713F12;
@@ -34,7 +65,100 @@
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { height: 100%; }
-body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; -webkit-text-size-adjust: 110%; text-size-adjust: 110%; }
+body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
+/* ── READ MODE BANNER ── */
+.read-banner {
+  display: none;
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1100;
+  background: #1E3A5F; color: #DBEAFE;
+  padding: 8px 16px; font-size: .78rem; font-weight: 500;
+  text-align: center; gap: 10px; align-items: center; justify-content: center;
+}
+.read-banner.visible { display: flex; }
+body.read-mode .read-banner { display: flex; }
+body.read-mode .main { padding-top: 36px; }
+body.read-mode [contenteditable] { pointer-events: none; cursor: default; }
+body.read-mode .complete-btn, body.read-mode .check-item { pointer-events: none; opacity: .6; }
+body.read-mode .sidebar-footer { display: none; }
+
+/* ── ONBOARDING OVERLAY ── */
+.onboard-overlay {
+  position: fixed; inset: 0; background: rgba(15,13,11,.96);
+  z-index: 9998; display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.onboard-overlay.hidden { display: none; }
+.onboard-card {
+  background: var(--card); border-radius: 20px;
+  padding: 36px 40px; max-width: 500px; width: 100%;
+  box-shadow: 0 32px 80px rgba(0,0,0,.5);
+}
+.onboard-step { display: none; }
+.onboard-step.active { display: block; }
+.onboard-card .step-label { font-size: .65rem; font-weight: 600; text-transform: uppercase; letter-spacing: .8px; color: var(--muted); margin-bottom: 12px; }
+.onboard-card h2 { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 900; line-height: 1.2; margin-bottom: 8px; letter-spacing: -.3px; }
+.onboard-card p { font-size: .82rem; color: var(--muted); line-height: 1.6; margin-bottom: 20px; }
+.onboard-options { display: flex; flex-direction: column; gap: 8px; }
+.onboard-opt {
+  padding: 12px 16px; border-radius: 10px;
+  border: 1.5px solid var(--line); cursor: pointer;
+  font-size: .85rem; font-weight: 500; transition: all .15s;
+  background: var(--bg);
+}
+.onboard-opt:hover { border-color: #E9873A; background: #FFF7F0; color: #1C1917; }
+.onboard-opt.selected { border-color: #E9873A; background: #FFF7F0; }
+.onboard-next {
+  margin-top: 16px; width: 100%; padding: 12px;
+  font-family: 'Plus Jakarta Sans', sans-serif; font-size: .85rem; font-weight: 600;
+  background: #E9873A; color: #fff; border: none; border-radius: 10px;
+  cursor: pointer; transition: background .15s; display: none;
+}
+.onboard-next:hover { background: #D97A30; }
+.onboard-next.visible { display: block; }
+.onboard-skip { display: block; text-align: center; margin-top: 10px; font-size: .72rem; color: var(--muted); cursor: pointer; }
+.onboard-skip:hover { color: var(--text); }
+
+/* ── METRICS HISTORY MODAL ── */
+.hist-overlay {
+  position: fixed; inset: 0; background: rgba(15,13,11,.8);
+  z-index: 9000; display: none; align-items: center; justify-content: center; padding: 20px;
+}
+.hist-overlay.visible { display: flex; }
+.hist-card {
+  background: var(--card); border-radius: 16px;
+  padding: 28px 32px; max-width: 480px; width: 100%;
+  max-height: 80vh; overflow-y: auto;
+  box-shadow: 0 24px 60px rgba(0,0,0,.4);
+}
+.hist-card h3 { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 700; margin-bottom: 4px; }
+.hist-card .hist-sub { font-size: .75rem; color: var(--muted); margin-bottom: 20px; }
+.hist-row { display: flex; justify-content: space-between; align-items: baseline; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.hist-row:last-child { border-bottom: none; }
+.hist-val { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; }
+.hist-date { font-size: .7rem; color: var(--muted); }
+.hist-empty { font-size: .82rem; color: var(--muted); text-align: center; padding: 20px 0; }
+.hist-close { margin-top: 16px; width: 100%; padding: 10px; background: var(--line); color: var(--text); border: none; border-radius: 8px; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; cursor: pointer; font-size: .82rem; }
+.metric-box-wrap { position: relative; }
+.hist-btn { position: absolute; top: 6px; right: 6px; font-size: .58rem; font-weight: 600; padding: 2px 7px; border-radius: 99px; border: 1px solid var(--line); background: var(--bg); color: var(--muted); cursor: pointer; transition: all .15s; }
+.hist-btn:hover { background: #E9873A; color: #fff; border-color: #E9873A; }
+
+/* ── DARK MODE TOGGLE (topbar) ── */
+.dark-toggle {
+  width: 32px; height: 32px; border-radius: 8px; border: none;
+  background: #2A2420; cursor: pointer; font-size: .9rem;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: background .15s;
+}
+.dark-toggle:hover { background: #3D3530; }
+
+/* ── SHARE BUTTON ── */
+.share-btn {
+  width: 32px; height: 32px; border-radius: 8px; border: none;
+  background: #2A2420; cursor: pointer; font-size: .85rem;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: background .15s;
+}
+.share-btn:hover { background: #3D3530; }
 
 /* ── SYNC INDICATOR ── */
 .sync-bar {
@@ -134,7 +258,7 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); colo
 .view.active { display: block; }
 
 /* ── DASHBOARD ── */
-#view-home { padding: 6px 10px 18px; }
+#view-home { padding: 36px 40px 48px; }
 .dash-greeting { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 900; line-height: 1.1; letter-spacing: -.5px; margin-bottom: 6px; }
 .dash-greeting span { color: #E9873A; font-style: italic; }
 .dash-sub { font-size: .85rem; color: var(--muted); max-width: 520px; line-height: 1.6; margin-bottom: 28px; }
@@ -173,7 +297,10 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); colo
 .block-head h3 { font-size: .82rem; font-weight: 600; }
 .block-body { padding: 16px 18px; }
 .edit-area { border: 1.5px dashed var(--line); border-radius: 8px; padding: 12px 14px; background: var(--bg); margin-top: 8px; }
-.edit-area [contenteditable] { font-family: 'Plus Jakarta Sans', sans-serif; font-size: .82rem; line-height: 1.65; outline: none; min-height: 60px; display: block; background: transparent; width: 100%; }
+.edit-area [contenteditable] { font-family: 'Plus Jakarta Sans', sans-serif; font-size: .82rem; line-height: 1.65; outline: none; min-height: 60px; display: block; background: transparent; width: 100%; overflow-wrap: break-word; }
+.field-save-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: transparent; margin-left: 6px; vertical-align: middle; transition: background .3s; }
+.field-save-dot.saving { background: #FB923C; animation: pulse 1s infinite; }
+.field-save-dot.saved  { background: #4ADE80; }
 .edit-area [contenteditable]:empty::before { content: attr(data-ph); color: #C8BFB5; pointer-events: none; }
 .edit-area [contenteditable]:focus { background: #FFFDF9; border-radius: 4px; }
 .edit-label { font-size: .65rem; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); margin-bottom: 4px; display: block; margin-top: 12px; }
@@ -195,7 +322,7 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); colo
 .metric-box label { display: block; font-size: .62rem; font-weight: 600; text-transform: uppercase; letter-spacing: .4px; color: var(--muted); margin-bottom: 4px; }
 .metric-box [contenteditable] { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 700; outline: none; background: transparent; display: block; min-height: 28px; }
 .metric-box [contenteditable]:empty::before { content: '—'; color: var(--line); }
-.tip-box { background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 10px; padding: 13px 15px; font-size: .78rem; line-height: 1.6; color: #78350F; }
+.tip-box { background: var(--tip-bg); border: 1px solid var(--tip-border); border-radius: 10px; padding: 13px 15px; font-size: .78rem; line-height: 1.6; color: var(--tip-text); }
 .tip-box strong { display: block; font-weight: 600; margin-bottom: 4px; }
 .stage-flow { display: flex; flex-direction: column; gap: 6px; }
 .stage-step { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); font-size: .78rem; }
@@ -296,6 +423,63 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); colo
 </head>
 <body>
 
+<!-- READ MODE BANNER -->
+<div class="read-banner" id="read-banner">
+  👁 Modo leitura — você está visualizando sem poder editar
+  <a onclick="exitReadMode()" style="color:#93C5FD;cursor:pointer;margin-left:8px;font-weight:600">Sair →</a>
+</div>
+
+<!-- ONBOARDING OVERLAY -->
+<div class="onboard-overlay hidden" id="onboard-overlay">
+  <div class="onboard-card">
+    <!-- Step 1 -->
+    <div class="onboard-step active" id="ob-step1">
+      <div class="step-label">Passo 1 de 3</div>
+      <h2>Bem-vinda ao Guia DonorApp 🌱</h2>
+      <p>Vamos entender onde a sua ONG está agora para sugerir por onde começar.</p>
+      <div class="onboard-options">
+        <div class="onboard-opt" onclick="obSelect(this,'situacao','nascendo')">🌱 Acabei de criar a ONG</div>
+        <div class="onboard-opt" onclick="obSelect(this,'situacao','crescendo')">🌿 Já temos doadores mas queremos crescer</div>
+        <div class="onboard-opt" onclick="obSelect(this,'situacao','retendo')">🌳 Temos doadores mas muitos estão parando</div>
+        <div class="onboard-opt" onclick="obSelect(this,'situacao','escalando')">🚀 Estamos prontos para escalar</div>
+      </div>
+      <button class="onboard-next" id="ob-next1" onclick="obNext(1)">Continuar →</button>
+      <span class="onboard-skip" onclick="skipOnboard()">Pular e ir direto ao painel</span>
+    </div>
+    <!-- Step 2 -->
+    <div class="onboard-step" id="ob-step2">
+      <div class="step-label">Passo 2 de 3</div>
+      <h2>Qual é o maior desafio agora?</h2>
+      <p>Escolha o que mais tira o seu sono hoje.</p>
+      <div class="onboard-options">
+        <div class="onboard-opt" onclick="obSelect(this,'desafio','visibilidade')">📢 Poucas pessoas conhecem a minha causa</div>
+        <div class="onboard-opt" onclick="obSelect(this,'desafio','conversao')">💸 Seguidores que não viram doadores</div>
+        <div class="onboard-opt" onclick="obSelect(this,'desafio','retencao')">💔 Doadores que somem depois da primeira doação</div>
+        <div class="onboard-opt" onclick="obSelect(this,'desafio','previsibilidade')">📉 Receita imprevisível mês a mês</div>
+      </div>
+      <button class="onboard-next" id="ob-next2" onclick="obNext(2)">Continuar →</button>
+    </div>
+    <!-- Step 3 — resultado -->
+    <div class="onboard-step" id="ob-step3">
+      <div class="step-label">Pronto! ✓</div>
+      <h2 id="ob-rec-title">Comece por aqui</h2>
+      <p id="ob-rec-desc"></p>
+      <button class="onboard-next visible" id="ob-go" onclick="obFinish()">Ir para o módulo recomendado →</button>
+      <span class="onboard-skip" onclick="skipOnboard()">Ver o painel completo primeiro</span>
+    </div>
+  </div>
+</div>
+
+<!-- METRICS HISTORY MODAL -->
+<div class="hist-overlay" id="hist-overlay" onclick="closeHist(event)">
+  <div class="hist-card">
+    <h3 id="hist-title">Histórico</h3>
+    <div class="hist-sub" id="hist-sub">Últimas atualizações deste número</div>
+    <div id="hist-list"></div>
+    <button class="hist-close" onclick="document.getElementById('hist-overlay').classList.remove('visible')">Fechar</button>
+  </div>
+</div>
+
 <!-- SYNC INDICATOR -->
 <div class="sync-bar" id="sync-bar"></div>
 <div class="sync-status" id="sync-status">
@@ -332,6 +516,8 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); colo
     <span></span><span></span><span></span>
   </button>
   <div class="brand-name-m">🌱 Guia DonorApp</div>
+  <button class="dark-toggle" onclick="toggleDark()" id="dark-toggle-btn" title="Alternar modo escuro">🌙</button>
+  <button class="share-btn" onclick="shareModule()" title="Compartilhar módulo">🔗</button>
 </div>
 
 <!-- SIDEBAR BACKDROP -->
@@ -360,8 +546,9 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); colo
   <div class="nav-item" onclick="showView('m8')" id="nav-m8"><div class="nav-dot" style="background:var(--c8)"></div><span class="nav-label">Envolver as pessoas</span><div class="nav-check" id="chk-m8"></div></div>
   <div class="nav-item" onclick="showView('m9')" id="nav-m9"><div class="nav-dot" style="background:var(--c9)"></div><span class="nav-label">Terça de Doar</span><div class="nav-check" id="chk-m9"></div></div>
   <div class="sidebar-footer">
-    <button class="sidebar-btn btn-print" onclick="window.print()">🖨 Imprimir / PDF</button>
+    <button class="sidebar-btn btn-print" onclick="exportPDF()">📄 Exportar PDF</button>
     <button class="sidebar-btn btn-config" onclick="showSetup()">⚙️ Reconfigurar banco</button>
+    <button class="sidebar-btn" style="background:#2A2420;color:#C4B5A8" onclick="toggleDark()">🌙 Modo escuro</button>
   </div>
 </nav>
 
@@ -370,7 +557,7 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); colo
 
 <!-- HOME -->
 <div class="view active" id="view-home">
-  <div style="padding:6px 10px 18px">
+  <div style="padding:36px 40px 48px">
     <div class="dash-greeting">Olá, bem-vinda ao seu<br><span>guia de captação.</span></div>
     <div class="dash-sub">Este é o espaço da sua equipe para organizar como a ONG vai encontrar, conquistar e manter as pessoas que acreditam na sua causa. Todas as edições são salvas automaticamente e visíveis para todos da equipe.</div>
     <div class="ong-setup">
@@ -426,10 +613,10 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); colo
       <div class="check-item" data-key="m1_c5" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Criar minha sequência de 48h após a primeira doação</span></div>
     </div></div></div>
     <div class="block"><div class="block-head"><div class="block-head-icon" style="background:var(--c1l)">📊</div><h3>Meus números</h3></div><div class="block-body"><div class="metric-row">
-      <div class="metric-box"><label>Seguidores</label><div contenteditable="true" data-key="m1_n1"></div></div>
-      <div class="metric-box"><label>Leads</label><div contenteditable="true" data-key="m1_n2"></div></div>
-      <div class="metric-box"><label>Doadores</label><div contenteditable="true" data-key="m1_n3"></div></div>
-      <div class="metric-box"><label>Mantenedores</label><div contenteditable="true" data-key="m1_n4"></div></div>
+      <div class="metric-box-wrap"><div class="metric-box"><label>Seguidores</label><div contenteditable="true" data-key="m1_n1"></div><button class="hist-btn" onclick="openHist('m1_n1','Seguidores')">📈</button></div></div>
+      <div class="metric-box-wrap"><div class="metric-box"><label>Leads</label><div contenteditable="true" data-key="m1_n2"></div><button class="hist-btn" onclick="openHist('m1_n2','Leads')">📈</button></div></div>
+      <div class="metric-box-wrap"><div class="metric-box"><label>Doadores</label><div contenteditable="true" data-key="m1_n3"></div><button class="hist-btn" onclick="openHist('m1_n3','Doadores')">📈</button></div></div>
+      <div class="metric-box-wrap"><div class="metric-box"><label>Mantenedores</label><div contenteditable="true" data-key="m1_n4"></div><button class="hist-btn" onclick="openHist('m1_n4','Mantenedores')">📈</button></div></div>
     </div></div></div>
     <button class="complete-btn not-done" id="done-m1" onclick="markDone('m1')">Marcar módulo como concluído</button>
   </div></div>
@@ -451,12 +638,12 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); colo
     <div class="block"><div class="block-head"><div class="block-head-icon" style="background:var(--c2l)">💰</div><h3>Valores sugeridos para doação</h3></div><div class="block-body">
       <div class="tip-box"><strong>Por que definir valores específicos?</strong>"R$15 paga o material de uma criança por um mês" é infinitamente mais poderoso do que "qualquer valor ajuda".</div>
       <div class="metric-row" style="margin-top:12px">
-        <div class="metric-box"><label>Valor pequeno (R$)</label><div contenteditable="true" data-key="m2_v1"></div></div>
-        <div class="metric-box"><label>O que resolve</label><div contenteditable="true" data-key="m2_v1d"></div></div>
-        <div class="metric-box"><label>Valor médio (R$)</label><div contenteditable="true" data-key="m2_v2"></div></div>
-        <div class="metric-box"><label>O que resolve</label><div contenteditable="true" data-key="m2_v2d"></div></div>
-        <div class="metric-box"><label>Valor alto (R$)</label><div contenteditable="true" data-key="m2_v3"></div></div>
-        <div class="metric-box"><label>O que resolve</label><div contenteditable="true" data-key="m2_v3d"></div></div>
+        <div class="metric-box-wrap"><div class="metric-box"><label>Valor pequeno (R$)</label><div contenteditable="true" data-key="m2_v1"></div><button class="hist-btn" onclick="openHist('m2_v1','Valor pequeno (R$)')">📈</button></div></div>
+        <div class="metric-box-wrap"><div class="metric-box"><label>O que resolve</label><div contenteditable="true" data-key="m2_v1d"></div><button class="hist-btn" onclick="openHist('m2_v1d','O que resolve')">📈</button></div></div>
+        <div class="metric-box-wrap"><div class="metric-box"><label>Valor médio (R$)</label><div contenteditable="true" data-key="m2_v2"></div><button class="hist-btn" onclick="openHist('m2_v2','Valor médio (R$)')">📈</button></div></div>
+        <div class="metric-box-wrap"><div class="metric-box"><label>O que resolve</label><div contenteditable="true" data-key="m2_v2d"></div><button class="hist-btn" onclick="openHist('m2_v2d','O que resolve')">📈</button></div></div>
+        <div class="metric-box-wrap"><div class="metric-box"><label>Valor alto (R$)</label><div contenteditable="true" data-key="m2_v3"></div><button class="hist-btn" onclick="openHist('m2_v3','Valor alto (R$)')">📈</button></div></div>
+        <div class="metric-box-wrap"><div class="metric-box"><label>O que resolve</label><div contenteditable="true" data-key="m2_v3d"></div><button class="hist-btn" onclick="openHist('m2_v3d','O que resolve')">📈</button></div></div>
       </div>
     </div></div>
   </div><div class="col-side">
@@ -468,10 +655,10 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); colo
       <div class="check-item" data-key="m2_c5" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Testar o processo de doação como se fosse um doador</span></div>
     </div></div></div>
     <div class="block"><div class="block-head"><div class="block-head-icon" style="background:var(--c2l)">📊</div><h3>Meus números</h3></div><div class="block-body"><div class="metric-row">
-      <div class="metric-box"><label>Doações este mês</label><div contenteditable="true" data-key="m2_n1"></div></div>
-      <div class="metric-box"><label>Total (R$)</label><div contenteditable="true" data-key="m2_n2"></div></div>
-      <div class="metric-box"><label>Ticket médio</label><div contenteditable="true" data-key="m2_n3"></div></div>
-      <div class="metric-box"><label>Cliques no link</label><div contenteditable="true" data-key="m2_n4"></div></div>
+      <div class="metric-box-wrap"><div class="metric-box"><label>Doações este mês</label><div contenteditable="true" data-key="m2_n1"></div><button class="hist-btn" onclick="openHist('m2_n1','Doações este mês')">📈</button></div></div>
+      <div class="metric-box-wrap"><div class="metric-box"><label>Total (R$)</label><div contenteditable="true" data-key="m2_n2"></div><button class="hist-btn" onclick="openHist('m2_n2','Total (R$)')">📈</button></div></div>
+      <div class="metric-box-wrap"><div class="metric-box"><label>Ticket médio</label><div contenteditable="true" data-key="m2_n3"></div><button class="hist-btn" onclick="openHist('m2_n3','Ticket médio')">📈</button></div></div>
+      <div class="metric-box-wrap"><div class="metric-box"><label>Cliques no link</label><div contenteditable="true" data-key="m2_n4"></div><button class="hist-btn" onclick="openHist('m2_n4','Cliques no link')">📈</button></div></div>
     </div></div></div>
     <button class="complete-btn not-done" id="done-m2" onclick="markDone('m2')">Marcar módulo como concluído</button>
   </div></div>
@@ -500,10 +687,10 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); colo
       <div class="check-item" data-key="m3_c5" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Definir o que vou comunicar mensalmente para eles</span></div>
     </div></div></div>
     <div class="block"><div class="block-head"><div class="block-head-icon" style="background:var(--c3l)">📊</div><h3>Meus números</h3></div><div class="block-body"><div class="metric-row">
-      <div class="metric-box"><label>Doadores ativos</label><div contenteditable="true" data-key="m3_n1"></div></div>
-      <div class="metric-box"><label>Inativos +60 dias</label><div contenteditable="true" data-key="m3_n2"></div></div>
-      <div class="metric-box"><label>Taxa de retenção</label><div contenteditable="true" data-key="m3_n3"></div></div>
-      <div class="metric-box"><label>Tempo médio</label><div contenteditable="true" data-key="m3_n4"></div></div>
+      <div class="metric-box-wrap"><div class="metric-box"><label>Doadores ativos</label><div contenteditable="true" data-key="m3_n1"></div><button class="hist-btn" onclick="openHist('m3_n1','Doadores ativos')">📈</button></div></div>
+      <div class="metric-box-wrap"><div class="metric-box"><label>Inativos +60 dias</label><div contenteditable="true" data-key="m3_n2"></div><button class="hist-btn" onclick="openHist('m3_n2','Inativos +60 dias')">📈</button></div></div>
+      <div class="metric-box-wrap"><div class="metric-box"><label>Taxa de retenção</label><div contenteditable="true" data-key="m3_n3"></div><button class="hist-btn" onclick="openHist('m3_n3','Taxa de retenção')">📈</button></div></div>
+      <div class="metric-box-wrap"><div class="metric-box"><label>Tempo médio</label><div contenteditable="true" data-key="m3_n4"></div><button class="hist-btn" onclick="openHist('m3_n4','Tempo médio')">📈</button></div></div>
     </div></div></div>
     <button class="complete-btn not-done" id="done-m3" onclick="markDone('m3')">Marcar módulo como concluído</button>
   </div></div>
@@ -528,10 +715,10 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); colo
       <div class="check-item" data-key="m4_c5" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Preparar termômetro visual da meta</span></div>
     </div></div></div>
     <div class="block"><div class="block-head"><div class="block-head-icon" style="background:var(--c4l)">📊</div><h3>Resultados</h3></div><div class="block-body"><div class="metric-row">
-      <div class="metric-box"><label>Meta (R$)</label><div contenteditable="true" data-key="m4_n1"></div></div>
-      <div class="metric-box"><label>Arrecadado (R$)</label><div contenteditable="true" data-key="m4_n2"></div></div>
-      <div class="metric-box"><label>Novos doadores</label><div contenteditable="true" data-key="m4_n3"></div></div>
-      <div class="metric-box"><label>Duração (dias)</label><div contenteditable="true" data-key="m4_n4"></div></div>
+      <div class="metric-box-wrap"><div class="metric-box"><label>Meta (R$)</label><div contenteditable="true" data-key="m4_n1"></div><button class="hist-btn" onclick="openHist('m4_n1','Meta (R$)')">📈</button></div></div>
+      <div class="metric-box-wrap"><div class="metric-box"><label>Arrecadado (R$)</label><div contenteditable="true" data-key="m4_n2"></div><button class="hist-btn" onclick="openHist('m4_n2','Arrecadado (R$)')">📈</button></div></div>
+      <div class="metric-box-wrap"><div class="metric-box"><label>Novos doadores</label><div contenteditable="true" data-key="m4_n3"></div><button class="hist-btn" onclick="openHist('m4_n3','Novos doadores')">📈</button></div></div>
+      <div class="metric-box-wrap"><div class="metric-box"><label>Duração (dias)</label><div contenteditable="true" data-key="m4_n4"></div><button class="hist-btn" onclick="openHist('m4_n4','Duração (dias)')">📈</button></div></div>
     </div></div></div>
     <button class="complete-btn not-done" id="done-m4" onclick="markDone('m4')">Marcar módulo como concluído</button>
   </div></div>
@@ -597,8 +784,1299 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); colo
       <div class="check-item" data-key="m7_c5" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Convidar pessoalmente os 5 primeiros mantenedores</span></div>
     </div></div></div>
     <div class="block"><div class="block-head"><div class="block-head-icon" style="background:var(--c7l)">📊</div><h3>Meus números</h3></div><div class="block-body"><div class="metric-row">
-      <div class="metric-box"><label>Mantenedores ativos</label><div contenteditable="true" data-key="m7_n1"></div></div>
-      <div class="metric-box"><label>Receita recorrente (R$)</label><div contenteditable="true" data-key="m7_n2"></div></div>
+      <div class="metric-box-wrap"><div class="metric-box"><label>Mantenedores ativos</label><div contenteditable="true" data-key="m7_n1"></div><button class="hist-btn" onclick="openHist('m7_n1','Mantenedores ativos')">📈</button></div></div>
+      <div class="metric-box-wrap"><div class="metric-box"><label>Receita recorrente (R$)</label><div contenteditable="true" data-key="m7_n2"></div><button class="hist-btn" onclick="openHist('m7_n2','Receita recorrente (R$)')">📈</button></div></div>
+    </div></div></div>
+    <button class="complete-btn not-done" id="done-m7" onclick="markDone('m7')">Marcar módulo como concluído</button>
+  </div></div>
+</div></div>
+
+<div class="view" id="view-m8"><div class="module-view">
+  <div class="module-hero" style="border-left:4px solid var(--c8)"><div class="hero-icon-wrap" style="background:var(--c8l)">🔥</div><div class="hero-text"><h1>Envolver as pessoas</h1><div class="hero-why">Engajamento não é curtida. É quando alguém comenta, compartilha, responde, pede mais. Essas são as pessoas que vão doar.</div><span class="hero-plain" style="background:var(--c8l);color:var(--c8)">Em linguagem simples: como fazer seguidores se importarem de verdade</span></div></div>
+  <div class="module-body"><div class="col-main">
+    <div class="block"><div class="block-head"><div class="block-head-icon" style="background:var(--c8l)">📱</div><h3>Conteúdo que gera envolvimento real</h3></div><div class="block-body">
+      <div class="info-pill" style="background:var(--c8l)"><span class="pill-icon">📊</span><div class="pill-text"><strong>O que funciona</strong>Histórias reais, bastidores honestos (incluindo dificuldades), perguntas que pedem opinião, conquistas com dados concretos, presença da líder como pessoa.</div></div>
+      <span class="edit-label">Calendário de conteúdo semanal</span><div class="edit-area"><div contenteditable="true" data-key="m8_calendario" data-ph="Segunda: bastidor da operação&#10;Quarta: história de um beneficiado&#10;Sexta: conquista com número&#10;Sábado: post pessoal da líder"></div></div>
+      <span class="edit-label">Como você vai pedir compartilhamentos?</span><div class="edit-area"><div contenteditable="true" data-key="m8_compartilhamento" data-ph="Ex: Ao final de posts impactantes: 'Conhece alguém que se importaria com isso? Compartilha.'"></div></div>
+    </div></div>
+  </div><div class="col-side">
+    <div class="block"><div class="block-head"><div class="block-head-icon" style="background:var(--c8l)">✅</div><h3>O que fazer esta semana</h3></div><div class="block-body"><div class="checklist">
+      <div class="check-item" data-key="m8_c1" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Definir a frequência de postagens que consigo manter</span></div>
+      <div class="check-item" data-key="m8_c2" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Escolher 1 beneficiado para contar a história</span></div>
+      <div class="check-item" data-key="m8_c3" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Fazer um post de bastidor honesto</span></div>
+      <div class="check-item" data-key="m8_c4" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Responder todos os comentários dos últimos 7 dias</span></div>
+      <div class="check-item" data-key="m8_c5" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Fazer uma pergunta para a audiência</span></div>
+    </div></div></div>
+    <button class="complete-btn not-done" id="done-m8" onclick="markDone('m8')">Marcar módulo como concluído</button>
+  </div></div>
+</div></div>
+
+<div class="view" id="view-m9"><div class="module-view">
+  <div class="module-hero" style="border-left:4px solid var(--c9)"><div class="hero-icon-wrap" style="background:var(--c9l)">🎁</div><div class="hero-text"><h1>Terça de Doar</h1><div class="hero-why">A Terça-feira de Doar é o maior dia de doações do mundo. No Brasil, a data ainda não é saturada — quem chegar preparado vai se destacar.</div><span class="hero-plain" style="background:var(--c9l);color:var(--c9)">Em linguagem simples: como aproveitar o maior dia de doações do mundo</span></div></div>
+  <div class="module-body"><div class="col-main">
+    <div class="block"><div class="block-head"><div class="block-head-icon" style="background:var(--c9l)">📅</div><h3>Planejamento para a Terça de Doar</h3></div><div class="block-body">
+      <div class="tip-box"><strong>O diferencial que poucos usam</strong>Uma doação casada (matching gift): uma empresa ou pessoa compromete dobrar cada doação recebida no dia. Isso incentiva quem estava na dúvida.</div>
+      <span class="edit-label">Sua meta para a Terça de Doar</span><div class="edit-area"><div contenteditable="true" data-key="m9_meta" data-ph="Ex: Arrecadar R$2.000 e conquistar 20 novos mantenedores em 24 horas."></div></div>
+      <span class="edit-label">Plano de comunicação (4 semanas antes)</span><div class="edit-area"><div contenteditable="true" data-key="m9_plano" data-ph="4 semanas antes: Aviso que a data está chegando&#10;2 semanas antes: Campanha com meta visual&#10;1 semana antes: 'falta 7 dias'&#10;Dia anterior: 'Amanhã é o dia'&#10;No dia: Atualização em tempo real&#10;Após: Resultado + agradecimento"></div></div>
+      <span class="edit-label">Você vai buscar uma doação casada?</span><div class="edit-area"><div contenteditable="true" data-key="m9_matching" data-ph="Você conhece uma empresa ou pessoa que toparia dobrar cada doação recebida no dia? Quem?"></div></div>
+    </div></div>
+  </div><div class="col-side">
+    <div class="block"><div class="block-head"><div class="block-head-icon" style="background:var(--c9l)">✅</div><h3>Checklist de preparação</h3></div><div class="block-body"><div class="checklist">
+      <div class="check-item" data-key="m9_c1" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Anotar a data da Terça de Doar deste ano</span></div>
+      <div class="check-item" data-key="m9_c2" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Definir meta específica para o dia</span></div>
+      <div class="check-item" data-key="m9_c3" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Buscar parceiro para doação casada</span></div>
+      <div class="check-item" data-key="m9_c4" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Preparar comunicação com 4 semanas de antecedência</span></div>
+      <div class="check-item" data-key="m9_c5" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Criar termômetro visual da meta</span></div>
+      <div class="check-item" data-key="m9_c6" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Agendar agradecimento público para o dia seguinte</span></div>
+    </div></div></div>
+    <button class="complete-btn not-done" id="done-m9" onclick="markDone('m9')">Marcar módulo como concluído</button>
+  </div></div>
+</div></div>
+
+</div><!-- /main -->
+
+<script>
+// ══════════════════════════════════════════════════════
+//  DARK MODE
+// ══════════════════════════════════════════════════════
+function toggleDark() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const next = isDark ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('ong_theme', next);
+  document.getElementById('dark-toggle-btn').textContent = next === 'dark' ? '☀️' : '🌙';
+}
+(function applyTheme() {
+  const saved = localStorage.getItem('ong_theme');
+  const pref  = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  const theme = saved || pref;
+  document.documentElement.setAttribute('data-theme', theme);
+  // Update button after DOM ready
+  document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.getElementById('dark-toggle-btn');
+    if (btn) btn.textContent = theme === 'dark' ? '☀️' : '🌙';
+  });
+})();
+
+// ══════════════════════════════════════════════════════
+//  READ MODE
+// ══════════════════════════════════════════════════════
+function checkReadMode() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('modo') === 'leitura') {
+    document.body.classList.add('read-mode');
+    document.getElementById('read-banner').classList.add('visible');
+  }
+}
+function exitReadMode() {
+  const url = new URL(window.location.href);
+  url.searchParams.delete('modo');
+  window.location.href = url.toString();
+}
+
+// ══════════════════════════════════════════════════════
+//  DEEP LINK / SHARE
+// ══════════════════════════════════════════════════════
+let currentView = 'home';
+function shareModule() {
+  const url = new URL(window.location.href);
+  url.searchParams.set('modulo', currentView);
+  const shareUrl = url.toString();
+  if (navigator.share) {
+    navigator.share({ title: 'Guia DonorApp', url: shareUrl });
+  } else {
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      showToast('Link copiado! ✓');
+    });
+  }
+}
+function checkDeepLink() {
+  const params = new URLSearchParams(window.location.search);
+  const mod = params.get('modulo');
+  if (mod && document.getElementById('view-' + mod)) {
+    showView(mod);
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════════════════
+function showToast(msg) {
+  let t = document.getElementById('toast-el');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'toast-el';
+    t.style.cssText = 'position:fixed;bottom:70px;right:16px;background:#1C1917;color:#F5F0E8;padding:8px 16px;border-radius:20px;font-size:.75rem;font-weight:500;z-index:9999;transition:opacity .3s';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg; t.style.opacity = '1';
+  setTimeout(() => { t.style.opacity = '0'; }, 2500);
+}
+
+// ══════════════════════════════════════════════════════
+//  ONBOARDING
+// ══════════════════════════════════════════════════════
+const obAnswers = {};
+const obRecommendations = {
+  // situacao + desafio → modulo
+  'nascendo_visibilidade':    { mod:'m1', title:'Comece pela Jornada do Apoiador', desc:'Você precisa construir o caminho que vai levar pessoas a te conhecerem e eventualmente doarem. Este módulo define toda a sua estratégia de presença.' },
+  'nascendo_conversao':       { mod:'m2', title:'Comece pela Captação Online',    desc:'Antes de converter, você precisa de um canal claro de doação. Este módulo te ajuda a criar e posicionar sua primeira página de doação.' },
+  'nascendo_retencao':        { mod:'m6', title:'Comece por Agradecer de Verdade',desc:'Mesmo com poucos doadores, criar o hábito de agradecer bem desde o início é o que vai diferenciar a sua ONG no longo prazo.' },
+  'nascendo_previsibilidade': { mod:'m7', title:'Comece pela Doação Todo Mês',   desc:'Receita previsível começa antes de você ter muitos doadores. Lançar um programa de mantenedores cedo cria a base da sua sustentabilidade.' },
+  'crescendo_visibilidade':   { mod:'m8', title:'Comece por Envolver as Pessoas', desc:'Para crescer, você precisa transformar seguidores em pessoas que realmente se importam. Engajamento real antecede doação.' },
+  'crescendo_conversao':      { mod:'m2', title:'Comece pela Captação Online',    desc:'Você já tem audiência — o problema está no caminho entre seguir e doar. Este módulo resolve isso.' },
+  'crescendo_retencao':       { mod:'m3', title:'Comece por Manter Quem Já Doa', desc:'Crescer trazendo novos doadores enquanto os antigos saem é correr em esteira. Fixe a retenção primeiro.' },
+  'crescendo_previsibilidade':{ mod:'m7', title:'Comece pela Doação Todo Mês',   desc:'Com doadores existentes, lançar um programa de mantenedores pode transformar sua receita variável em previsível rapidamente.' },
+  'retendo_visibilidade':     { mod:'m3', title:'Comece por Manter Quem Já Doa', desc:'Se doadores estão saindo, o problema está no relacionamento — não na visibilidade. Resolva isso antes de buscar novos.' },
+  'retendo_conversao':        { mod:'m3', title:'Comece por Manter Quem Já Doa', desc:'Doadores que somem após a primeira doação é problema de retenção. Este módulo foca exatamente nesse ponto crítico.' },
+  'retendo_retencao':         { mod:'m3', title:'Comece por Manter Quem Já Doa', desc:'Este é o módulo exato para o seu momento. Identifique quem está saindo e como reconectar com eles.' },
+  'retendo_previsibilidade':  { mod:'m7', title:'Comece pela Doação Todo Mês',   desc:'Transformar doadores pontuais em mantenedores mensais é a solução para receita imprevisível.' },
+  'escalando_visibilidade':   { mod:'m8', title:'Comece por Envolver as Pessoas', desc:'Para escalar, você precisa de embaixadores — pessoas que promovem sua causa por você. O engajamento profundo cria isso.' },
+  'escalando_conversao':      { mod:'m5', title:'Comece pelos Grandes Doadores',  desc:'No estágio de escala, uma grande doação equivale a centenas de pequenas. Cultive esse relacionamento agora.' },
+  'escalando_retencao':       { mod:'m6', title:'Comece por Agradecer de Verdade',desc:'Em escala, gratidão sistemática é o que separa ONGs com alta retenção das demais.' },
+  'escalando_previsibilidade':{ mod:'m7', title:'Comece pela Doação Todo Mês',   desc:'Com sua base atual, um programa de mantenedores estruturado pode criar a previsibilidade que você precisa para escalar com segurança.' },
+};
+
+let obRecommendedMod = 'm1';
+
+function obSelect(el, type, val) {
+  el.closest('.onboard-options').querySelectorAll('.onboard-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  obAnswers[type] = val;
+  const stepNum = type === 'situacao' ? 1 : 2;
+  document.getElementById('ob-next' + stepNum).classList.add('visible');
+
+  if (type === 'desafio') {
+    const key = obAnswers.situacao + '_' + val;
+    const rec = obRecommendations[key] || { mod:'m1', title:'Comece pela Jornada do Apoiador', desc:'Este módulo é a base de tudo.' };
+    obRecommendedMod = rec.mod;
+    document.getElementById('ob-rec-title').textContent = rec.title;
+    document.getElementById('ob-rec-desc').textContent = rec.desc;
+  }
+}
+
+function obNext(step) {
+  document.getElementById('ob-step' + step).classList.remove('active');
+  document.getElementById('ob-step' + (step + 1)).classList.add('active');
+}
+
+function obFinish() {
+  localStorage.setItem('ong_onboarded', '1');
+  document.getElementById('onboard-overlay').classList.add('hidden');
+  showView(obRecommendedMod);
+}
+
+function skipOnboard() {
+  localStorage.setItem('ong_onboarded', '1');
+  document.getElementById('onboard-overlay').classList.add('hidden');
+}
+
+// ══════════════════════════════════════════════════════
+//  METRICS HISTORY
+// ══════════════════════════════════════════════════════
+async function openHist(key, label) {
+  document.getElementById('hist-title').textContent = label;
+  document.getElementById('hist-overlay').classList.add('visible');
+  const list = document.getElementById('hist-list');
+  list.innerHTML = '<div class="hist-empty">Carregando...</div>';
+
+  try {
+    let rows = [];
+    if (sb) {
+      const { data } = await sb.from('ong_metrics_history')
+        .select('value,recorded_at')
+        .eq('org_id', ORG)
+        .eq('metric_key', key)
+        .order('recorded_at', { ascending: false })
+        .limit(10);
+      rows = data || [];
+    }
+    if (rows.length === 0) {
+      list.innerHTML = '<div class="hist-empty">Nenhum histórico ainda.<br>Os valores são registrados cada vez que você os edita.</div>';
+    } else {
+      list.innerHTML = rows.map(r => {
+        const d = new Date(r.recorded_at);
+        const date = d.toLocaleDateString('pt-BR', { day:'2-digit', month:'short', year:'numeric' });
+        return `<div class="hist-row"><span class="hist-val">${r.value}</span><span class="hist-date">${date}</span></div>`;
+      }).join('');
+    }
+  } catch(e) {
+    list.innerHTML = '<div class="hist-empty">Não foi possível carregar o histórico.</div>';
+  }
+}
+
+function closeHist(e) {
+  if (e.target === document.getElementById('hist-overlay')) {
+    document.getElementById('hist-overlay').classList.remove('visible');
+  }
+}
+
+async function saveMetricHistory(key, value) {
+  if (!sb || !value || value.trim() === '') return;
+  try {
+    await sb.from('ong_metrics_history').insert({ org_id: ORG, metric_key: key, value: value.trim() });
+  } catch(e) { /* silently ignore */ }
+}
+
+// ══════════════════════════════════════════════════════
+//  PDF EXPORT
+// ══════════════════════════════════════════════════════
+function exportPDF() {
+  // Show all views temporarily for print
+  document.querySelectorAll('.view').forEach(v => v.style.display = 'block');
+  window.print();
+  // Restore after print dialog closes
+  setTimeout(() => {
+    document.querySelectorAll('.view').forEach(v => v.style.display = '');
+    document.querySelectorAll('.view.active').forEach(v => v.style.display = 'block');
+  }, 1000);
+}
+
+// ══════════════════════════════════════════════════════
+//  SUPABASE INTEGRATION
+// ══════════════════════════════════════════════════════
+let sb = null;
+let ORG = 'minha-ong';
+let saveTimer = null;
+
+function initSupabase(url, key, org) {
+  try {
+    sb = supabase.createClient(url, key, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+        detectSessionInUrl: false
+      }
+    });
+    ORG = org || 'minha-ong';
+    return true;
+  } catch(e) { return false; }
+}
+
+async function testConnection() {
+  try {
+    const { error } = await sb.from('ong_data').select('id').limit(1);
+    return !error || error.code === 'PGRST116';
+  } catch(e) { return false; }
+}
+
+// ── LOCAL FALLBACK ──
+function saveLocal(key, value) {
+  try { const d = JSON.parse(localStorage.getItem('ong_fallback')||'{}'); d[key]=value; localStorage.setItem('ong_fallback', JSON.stringify(d)); } catch(e){}
+}
+function loadFromLocal() {
+  try { const d = JSON.parse(localStorage.getItem('ong_fallback')||'{}'); Object.entries(d).forEach(([k,v])=>applyField(k,v)); } catch(e){}
+}
+
+async function dbSave(key, value) {
+  if (!sb) return saveLocal(key, value);
+  setInlineSave(key, 'saving');
+  try {
+    await sb.from('ong_data').upsert({ org_id: ORG, key, value }, { onConflict: 'org_id,key' });
+    setInlineSave(key, 'saved');
+    setSyncStatus('saved');
+  } catch(e) { setSyncStatus('error'); saveLocal(key, value); setInlineSave(key, 'error'); }
+}
+
+async function dbLoad() {
+  if (!sb) { loadFromLocal(); return; }
+  setSyncStatus('saving');
+  try {
+    const { data, error } = await sb.from('ong_data').select('key,value').eq('org_id', ORG);
+    if (error) throw error;
+    if (data) data.forEach(row => applyField(row.key, row.value));
+    setSyncStatus('saved');
+  } catch(e) { setSyncStatus('error'); loadFromLocal(); }
+}
+
+function applyField(key, value) {
+  const el = document.querySelector(`[data-key="${key}"]`);
+  if (el) { el.innerHTML = value || ''; return; }
+  if (value === 'checked') {
+    const ci = document.querySelector(`.check-item[data-key="${key}"]`);
+    if (ci) ci.classList.add('checked');
+  }
+  if (key.startsWith('done_') && value === 'true') {
+    const id = key.replace('done_', '');
+    applyDoneState(id);
+  }
+}
+
+// ── INLINE SAVE INDICATOR ──
+function setInlineSave(key, state) {
+  const el = document.querySelector(`[data-key="${key}"]`);
+  if (!el) return;
+  let dot = el.parentElement.querySelector('.field-save-dot');
+  if (!dot) {
+    dot = document.createElement('span');
+    dot.className = 'field-save-dot';
+    el.parentElement.appendChild(dot);
+  }
+  dot.className = 'field-save-dot ' + state;
+  if (state === 'saved') setTimeout(() => { dot.className = 'field-save-dot'; }, 2000);
+}
+
+// ── SYNC UI ──
+function setSyncStatus(state) {
+  const bar = document.getElementById('sync-bar');
+  const dot = document.getElementById('sync-dot');
+  const txt = document.getElementById('sync-text');
+  const status = document.getElementById('sync-status');
+  bar.className = 'sync-bar ' + state;
+  status.classList.add('visible');
+  if (state === 'saving') { dot.className='sync-dot orange'; txt.textContent='Salvando...'; }
+  if (state === 'saved')  { dot.className='sync-dot green';  txt.textContent='Sincronizado ✓'; setTimeout(()=>{ bar.className='sync-bar'; status.classList.remove('visible'); },2500); }
+  if (state === 'error')  { dot.className='sync-dot red';    txt.textContent='Erro — salvo localmente'; setTimeout(()=>{ bar.className='sync-bar'; status.classList.remove('visible'); },4000); }
+}
+
+// ── SETUP OVERLAY ──
+function showSetup() { document.getElementById('setup-overlay').classList.remove('hidden'); }
+
+async function connectSupabase() {
+  const url = document.getElementById('input-url').value.trim();
+  const key = document.getElementById('input-key').value.trim();
+  const org = document.getElementById('input-org').value.trim() || 'minha-ong';
+  const err = document.getElementById('setup-error');
+  if (!url || !key) { err.style.display='block'; err.textContent='Preencha os dois campos.'; return; }
+  if (!initSupabase(url, key, org)) { err.style.display='block'; return; }
+  const ok = await testConnection();
+  if (!ok) { err.style.display='block'; err.textContent='Não consegui conectar. Verifique se as chaves estão corretas e se a tabela foi criada.'; return; }
+  localStorage.setItem('sb_url', url);
+  localStorage.setItem('sb_key', key);
+  localStorage.setItem('sb_org', org);
+  document.getElementById('setup-overlay').classList.add('hidden');
+  await dbLoad();
+}
+
+// ── NAVIGATION ──
+const MODULES = ['m1','m2','m3','m4','m5','m6','m7','m8','m9'];
+let completed = {};
+
+// ── SWIPE GESTURE HANDLER ──
+(function() {
+  let touchStartX = 0, touchStartY = 0, touchStartTime = 0;
+  document.addEventListener('touchstart', function(e) {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+    touchStartTime = Date.now();
+  }, { passive: true });
+  document.addEventListener('touchend', function(e) {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    const dy = e.changedTouches[0].clientY - touchStartY;
+    const dt = Date.now() - touchStartTime;
+    if (dt > 400 || Math.abs(dx) < 50 || Math.abs(dy) > Math.abs(dx) * 0.6) return;
+    const sidebar = document.getElementById('sidebar');
+    if (window.innerWidth > 768) return;
+    if (dx > 0) {
+      if (sidebar.classList.contains('open')) return;
+      touchStartX <= 30 ? toggleSidebar() : showView('home');
+    }
+    if (dx < 0 && sidebar.classList.contains('open')) closeSidebar();
+  }, { passive: true });
+  if (window.innerWidth <= 768) {
+    history.pushState({ page: 'app' }, '', window.location.href);
+    window.addEventListener('popstate', function() {
+      history.pushState({ page: 'app' }, '', window.location.href);
+      showView('home');
+    });
+  }
+})();
+
+// ── MOBILE SIDEBAR TOGGLE ──
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
+  const burger  = document.getElementById('hamburger');
+  sidebar.classList.contains('open') ? closeSidebar() : (sidebar.classList.add('open'), overlay.classList.add('visible'), burger.classList.add('open'));
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('visible');
+  document.getElementById('hamburger').classList.remove('open');
+}
+
+function showView(id) {
+  currentView = id;
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('view-'+id).classList.add('active');
+  document.getElementById('nav-'+id).classList.add('active');
+  if (window.innerWidth <= 768) { closeSidebar(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+  else { document.querySelector('.main').scrollTop = 0; }
+}
+
+// ── CHECKLIST ──
+function toggleCheck(el) {
+  el.classList.toggle('checked');
+  const key = el.dataset.key;
+  if (key) debounceSave(key, el.classList.contains('checked') ? 'checked' : '');
+}
+
+// ── COMPLETE MODULE ──
+function markDone(id) {
+  completed[id] = !completed[id];
+  if (completed[id]) applyDoneState(id); else removeDoneState(id);
+  dbSave('done_'+id, completed[id] ? 'true' : 'false');
+  updateProgress();
+}
+function applyDoneState(id) {
+  completed[id] = true;
+  const btn = document.getElementById('done-'+id);
+  const chk = document.getElementById('chk-'+id);
+  const badge = document.getElementById('badge-'+id);
+  if (btn) { btn.textContent='✓ Módulo concluído'; btn.className='complete-btn done-state'; }
+  if (chk) { chk.classList.add('done'); chk.textContent='✓'; }
+  if (badge) { badge.textContent='Concluído'; badge.className='mc-badge done-b'; }
+  updateProgress();
+}
+function removeDoneState(id) {
+  const btn = document.getElementById('done-'+id);
+  const chk = document.getElementById('chk-'+id);
+  const badge = document.getElementById('badge-'+id);
+  if (btn) { btn.textContent='Marcar módulo como concluído'; btn.className='complete-btn not-done'; }
+  if (chk) { chk.classList.remove('done'); chk.textContent=''; }
+  if (badge) { badge.textContent='Começar'; badge.className='mc-badge start'; }
+}
+function updateProgress() {
+  const done = MODULES.filter(m=>completed[m]).length;
+  const pct = Math.round((done/MODULES.length)*100);
+  document.getElementById('prog-bar').style.width = pct+'%';
+  document.getElementById('prog-label').textContent = done+' de '+MODULES.length+' módulos concluídos ('+pct+'%)';
+}
+
+// ── DEBOUNCED SAVE ──
+const saveQueue = {};
+function debounceSave(key, value) {
+  if (saveQueue[key]) clearTimeout(saveQueue[key]);
+  saveQueue[key] = setTimeout(() => {
+    dbSave(key, value);
+    // If it's a metric field, also save to history
+    if (key.match(/_n\d+$/)) saveMetricHistory(key, value);
+    delete saveQueue[key];
+  }, 800);
+}
+
+// ── AUTO-EXPAND CONTENTEDITABLE ──
+function autoExpand(el) {
+  // contenteditable grows naturally — ensure min-height doesn't clip
+  el.style.minHeight = 'auto';
+}
+
+// ── LISTEN FOR EDITS ──
+document.addEventListener('input', e => {
+  const el = e.target;
+  if (!el.hasAttribute('contenteditable')) return;
+  const key = el.dataset.key;
+  if (!key) return;
+  autoExpand(el);
+  setInlineSave(key, 'saving');
+  debounceSave(key, el.innerHTML);
+});
+
+// ══════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════
+(async function init() {
+  checkReadMode();
+  checkDeepLink();
+
+  // Onboarding — show only on first visit
+  if (!localStorage.getItem('ong_onboarded')) {
+    setTimeout(() => {
+      document.getElementById('onboard-overlay').classList.remove('hidden');
+    }, 600);
+  }
+
+  // Supabase connection
+  if (typeof SUPABASE_URL !== 'undefined' && SUPABASE_URL !== 'COLE_SUA_URL_AQUI') {
+    initSupabase(SUPABASE_URL, SUPABASE_KEY, ORG_ID);
+    document.getElementById('setup-overlay').classList.add('hidden');
+    await dbLoad();
+    return;
+  }
+  const url = localStorage.getItem('sb_url');
+  const key = localStorage.getItem('sb_key');
+  const org = localStorage.getItem('sb_org');
+  if (url && key) {
+    initSupabase(url, key, org);
+    const ok = await testConnection();
+    if (ok) {
+      document.getElementById('setup-overlay').classList.add('hidden');
+      await dbLoad();
+      return;
+    }
+  }
+  document.getElementById('setup-overlay').classList.remove('hidden');
+})();
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<!-- ═══════════════════════════════════════
+  PASSO 3 DO TUTORIAL: Cole aqui suas chaves
+  do Supabase (veja o arquivo TUTORIAL.html)
+════════════════════════════════════════ -->
+<script>
+  const SUPABASE_URL = 'COLE_SUA_URL_AQUI';
+  const SUPABASE_KEY = 'COLE_SUA_CHAVE_AQUI';
+  const ORG_ID       = 'minha-ong'; // Mude para o nome da sua ONG (sem espaços)
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root {
+  --bg:       #F9F6F1;
+  --sidebar:  #1C1917;
+  --card:     #FFFFFF;
+  --line:     #E5DFD6;
+  --muted:    #9C8E82;
+  --text:     #1C1917;
+  --accent:   #E9873A;
+  --tip-bg:   #FFFBEB;
+  --tip-border:#FDE68A;
+  --tip-text: #78350F;
+}
+[data-theme="dark"] {
+  --bg:       #0F0D0B;
+  --sidebar:  #100E0C;
+  --card:     #1A1714;
+  --line:     #2D2825;
+  --muted:    #6B5E54;
+  --text:     #EDE8E3;
+  --tip-bg:   #1C1610;
+  --tip-border:#3D2E10;
+  --tip-text: #D4A44C;
+}
+:root {
+  --c1: #166534; --c2: #1E3A5F; --c3: #7C2D12;
+  --c4: #5B21B6; --c5: #92400E; --c6: #065F46;
+  --c7: #1E40AF; --c8: #831843; --c9: #713F12;
+  --c1l: #DCFCE7; --c2l: #DBEAFE; --c3l: #FEE2E2;
+  --c4l: #EDE9FE; --c5l: #FEF3C7; --c6l: #D1FAE5;
+  --c7l: #DBEAFE; --c8l: #FCE7F3; --c9l: #FEF9C3;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
+/* ── READ MODE BANNER ── */
+.read-banner {
+  display: none;
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1100;
+  background: #1E3A5F; color: #DBEAFE;
+  padding: 8px 16px; font-size: .78rem; font-weight: 500;
+  text-align: center; gap: 10px; align-items: center; justify-content: center;
+}
+.read-banner.visible { display: flex; }
+body.read-mode .read-banner { display: flex; }
+body.read-mode .main { padding-top: 36px; }
+body.read-mode [contenteditable] { pointer-events: none; cursor: default; }
+body.read-mode .complete-btn, body.read-mode .check-item { pointer-events: none; opacity: .6; }
+body.read-mode .sidebar-footer { display: none; }
+
+/* ── ONBOARDING OVERLAY ── */
+.onboard-overlay {
+  position: fixed; inset: 0; background: rgba(15,13,11,.96);
+  z-index: 9998; display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.onboard-overlay.hidden { display: none; }
+.onboard-card {
+  background: var(--card); border-radius: 20px;
+  padding: 36px 40px; max-width: 500px; width: 100%;
+  box-shadow: 0 32px 80px rgba(0,0,0,.5);
+}
+.onboard-step { display: none; }
+.onboard-step.active { display: block; }
+.onboard-card .step-label { font-size: .65rem; font-weight: 600; text-transform: uppercase; letter-spacing: .8px; color: var(--muted); margin-bottom: 12px; }
+.onboard-card h2 { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 900; line-height: 1.2; margin-bottom: 8px; letter-spacing: -.3px; }
+.onboard-card p { font-size: .82rem; color: var(--muted); line-height: 1.6; margin-bottom: 20px; }
+.onboard-options { display: flex; flex-direction: column; gap: 8px; }
+.onboard-opt {
+  padding: 12px 16px; border-radius: 10px;
+  border: 1.5px solid var(--line); cursor: pointer;
+  font-size: .85rem; font-weight: 500; transition: all .15s;
+  background: var(--bg);
+}
+.onboard-opt:hover { border-color: #E9873A; background: #FFF7F0; color: #1C1917; }
+.onboard-opt.selected { border-color: #E9873A; background: #FFF7F0; }
+.onboard-next {
+  margin-top: 16px; width: 100%; padding: 12px;
+  font-family: 'Plus Jakarta Sans', sans-serif; font-size: .85rem; font-weight: 600;
+  background: #E9873A; color: #fff; border: none; border-radius: 10px;
+  cursor: pointer; transition: background .15s; display: none;
+}
+.onboard-next:hover { background: #D97A30; }
+.onboard-next.visible { display: block; }
+.onboard-skip { display: block; text-align: center; margin-top: 10px; font-size: .72rem; color: var(--muted); cursor: pointer; }
+.onboard-skip:hover { color: var(--text); }
+
+/* ── METRICS HISTORY MODAL ── */
+.hist-overlay {
+  position: fixed; inset: 0; background: rgba(15,13,11,.8);
+  z-index: 9000; display: none; align-items: center; justify-content: center; padding: 20px;
+}
+.hist-overlay.visible { display: flex; }
+.hist-card {
+  background: var(--card); border-radius: 16px;
+  padding: 28px 32px; max-width: 480px; width: 100%;
+  max-height: 80vh; overflow-y: auto;
+  box-shadow: 0 24px 60px rgba(0,0,0,.4);
+}
+.hist-card h3 { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 700; margin-bottom: 4px; }
+.hist-card .hist-sub { font-size: .75rem; color: var(--muted); margin-bottom: 20px; }
+.hist-row { display: flex; justify-content: space-between; align-items: baseline; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.hist-row:last-child { border-bottom: none; }
+.hist-val { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; }
+.hist-date { font-size: .7rem; color: var(--muted); }
+.hist-empty { font-size: .82rem; color: var(--muted); text-align: center; padding: 20px 0; }
+.hist-close { margin-top: 16px; width: 100%; padding: 10px; background: var(--line); color: var(--text); border: none; border-radius: 8px; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; cursor: pointer; font-size: .82rem; }
+.metric-box-wrap { position: relative; }
+.hist-btn { position: absolute; top: 6px; right: 6px; font-size: .58rem; font-weight: 600; padding: 2px 7px; border-radius: 99px; border: 1px solid var(--line); background: var(--bg); color: var(--muted); cursor: pointer; transition: all .15s; }
+.hist-btn:hover { background: #E9873A; color: #fff; border-color: #E9873A; }
+
+/* ── DARK MODE TOGGLE (topbar) ── */
+.dark-toggle {
+  width: 32px; height: 32px; border-radius: 8px; border: none;
+  background: #2A2420; cursor: pointer; font-size: .9rem;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: background .15s;
+}
+.dark-toggle:hover { background: #3D3530; }
+
+/* ── SHARE BUTTON ── */
+.share-btn {
+  width: 32px; height: 32px; border-radius: 8px; border: none;
+  background: #2A2420; cursor: pointer; font-size: .85rem;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: background .15s;
+}
+.share-btn:hover { background: #3D3530; }
+
+/* ── SYNC INDICATOR ── */
+.sync-bar {
+  position: fixed; top: 0; left: 260px; right: 0;
+  height: 3px; z-index: 999;
+  background: transparent;
+  transition: background .3s;
+}
+.sync-bar.saving { background: linear-gradient(90deg, #E9873A 0%, #F5C27A 50%, #E9873A 100%); background-size: 200%; animation: slide 1s linear infinite; }
+.sync-bar.saved  { background: #16A34A; animation: none; }
+.sync-bar.error  { background: #DC2626; animation: none; }
+@keyframes slide { from { background-position: 0% } to { background-position: 200% } }
+
+.sync-status {
+  position: fixed; bottom: 16px; right: 20px;
+  background: var(--sidebar); color: #F5F0E8;
+  padding: 7px 14px; border-radius: 20px;
+  font-size: .7rem; font-weight: 500;
+  display: flex; align-items: center; gap: 6px;
+  z-index: 999; opacity: 0;
+  transition: opacity .3s;
+  pointer-events: none;
+}
+.sync-status.visible { opacity: 1; }
+.sync-dot { width: 7px; height: 7px; border-radius: 50%; }
+.sync-dot.green  { background: #4ADE80; }
+.sync-dot.orange { background: #FB923C; animation: pulse 1s infinite; }
+.sync-dot.red    { background: #F87171; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+/* ── SETUP OVERLAY ── */
+.setup-overlay {
+  position: fixed; inset: 0;
+  background: rgba(28,25,23,.92);
+  z-index: 9999;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.setup-overlay.hidden { display: none; }
+.setup-card {
+  background: #F9F6F1; border-radius: 16px;
+  padding: 36px 40px; max-width: 520px; width: 100%;
+  box-shadow: 0 24px 80px rgba(0,0,0,.4);
+}
+.setup-card h2 {
+  font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 900;
+  margin-bottom: 6px; letter-spacing: -.3px;
+}
+.setup-card p { font-size: .82rem; color: #6B5E54; line-height: 1.6; margin-bottom: 20px; }
+.setup-input-wrap { margin-bottom: 14px; }
+.setup-input-wrap label { display: block; font-size: .68rem; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; color: #9C8E82; margin-bottom: 5px; }
+.setup-input-wrap input {
+  width: 100%; font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: .85rem; padding: 10px 14px;
+  border: 1.5px solid #E5DFD6; border-radius: 8px;
+  background: #fff; outline: none; transition: border-color .2s;
+}
+.setup-input-wrap input:focus { border-color: #E9873A; }
+.setup-connect-btn {
+  width: 100%; font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: .85rem; font-weight: 600; padding: 12px;
+  background: #E9873A; color: #fff; border: none;
+  border-radius: 10px; cursor: pointer; margin-top: 6px;
+  transition: background .15s;
+}
+.setup-connect-btn:hover { background: #D97A30; }
+.setup-error { font-size: .75rem; color: #DC2626; margin-top: 8px; display: none; }
+.setup-note { font-size: .7rem; color: #9C8E82; margin-top: 14px; line-height: 1.5; }
+
+/* ── SIDEBAR ── */
+.sidebar { width: 260px; min-width: 260px; background: var(--sidebar); display: flex; flex-direction: column; height: 100vh; overflow-y: auto; scrollbar-width: none; }
+.sidebar::-webkit-scrollbar { display: none; }
+.sidebar-brand { padding: 24px 20px 18px; border-bottom: 1px solid #2D2825; }
+.brand-icon { width: 36px; height: 36px; background: #E9873A; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; margin-bottom: 10px; }
+.brand-name { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 700; color: #F5F0E8; line-height: 1.2; }
+.brand-sub { font-size: .65rem; color: #6B5E54; margin-top: 2px; letter-spacing: .3px; }
+.sidebar-section { padding: 14px 16px 4px; font-size: .58rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.2px; color: #4A3F38; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 16px; cursor: pointer; border-radius: 8px; margin: 1px 8px; transition: all .15s; position: relative; }
+.nav-item:hover { background: #2A2420; }
+.nav-item.active { background: #2A2420; }
+.nav-item.active::before { content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 3px; height: 60%; border-radius: 2px; background: #E9873A; }
+.nav-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.nav-label { font-size: .78rem; color: #C4B5A8; font-weight: 400; line-height: 1.2; flex: 1; -webkit-font-smoothing: antialiased; }
+.nav-item.active .nav-label { color: #F5F0E8; font-weight: 500; }
+.nav-check { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid #3D3530; display: flex; align-items: center; justify-content: center; font-size: .55rem; color: transparent; flex-shrink: 0; transition: all .2s; }
+.nav-check.done { background: #E9873A; border-color: #E9873A; color: #fff; }
+.sidebar-footer { margin-top: auto; padding: 16px; border-top: 1px solid #2D2825; }
+.sidebar-btn { font-family: 'Plus Jakarta Sans', sans-serif; font-size: .72rem; font-weight: 500; padding: 7px 12px; border-radius: 8px; border: none; cursor: pointer; transition: all .15s; text-align: center; width: 100%; margin-bottom: 6px; }
+.btn-print { background: transparent; color: #6B5E54; border: 1px solid #3D3530; }
+.btn-print:hover { color: #C4B5A8; }
+.btn-config { background: #2A2420; color: #C4B5A8; }
+.btn-config:hover { background: #332D28; color: #F5F0E8; }
+
+/* ── MAIN ── */
+.main { flex: 1; overflow-y: auto; height: 100vh; }
+.view { display: none; padding: 0; }
+.view.active { display: block; }
+
+/* ── DASHBOARD ── */
+#view-home { padding: 36px 40px 48px; }
+.dash-greeting { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 900; line-height: 1.1; letter-spacing: -.5px; margin-bottom: 6px; }
+.dash-greeting span { color: #E9873A; font-style: italic; }
+.dash-sub { font-size: .85rem; color: var(--muted); max-width: 520px; line-height: 1.6; margin-bottom: 28px; }
+.ong-setup { background: var(--card); border: 1.5px solid var(--line); border-radius: 14px; padding: 22px 24px; margin-bottom: 28px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.setup-field label { display: block; font-size: .65rem; font-weight: 600; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin-bottom: 5px; }
+.setup-field [contenteditable] { font-family: 'Plus Jakarta Sans', sans-serif; font-size: .88rem; font-weight: 500; color: var(--text); outline: none; border-bottom: 1.5px solid var(--line); padding-bottom: 4px; display: block; width: 100%; min-height: 24px; background: transparent; transition: border-color .2s; }
+.setup-field [contenteditable]:focus { border-color: #E9873A; }
+.setup-field [contenteditable]:empty::before { content: attr(data-ph); color: #C8BFB5; pointer-events: none; }
+.progress-bar-wrap { background: var(--line); border-radius: 99px; height: 8px; margin-bottom: 6px; }
+.progress-bar-fill { background: linear-gradient(90deg, #166534, #E9873A); height: 8px; border-radius: 99px; transition: width .4s ease; width: 0%; }
+.progress-label { font-size: .72rem; color: var(--muted); margin-bottom: 20px; }
+.modules-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.module-card { background: var(--card); border: 1.5px solid var(--line); border-radius: 12px; padding: 18px 20px; cursor: pointer; transition: all .2s; position: relative; overflow: hidden; }
+.module-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--accent, #E9873A); }
+.module-card:hover { border-color: var(--accent, #E9873A); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.07); }
+.mc-icon { font-size: 1.5rem; margin-bottom: 8px; }
+.mc-title { font-family: 'Playfair Display', serif; font-size: .95rem; font-weight: 700; margin-bottom: 4px; line-height: 1.2; }
+.mc-desc { font-size: .72rem; color: var(--muted); line-height: 1.5; }
+.mc-badge { position: absolute; top: 12px; right: 12px; font-size: .6rem; font-weight: 600; text-transform: uppercase; letter-spacing: .4px; padding: 2px 8px; border-radius: 99px; }
+.mc-badge.start { background: #FEF3C7; color: #92400E; }
+.mc-badge.done-b { background: #D1FAE5; color: #065F46; }
+
+/* ── MODULE VIEWS ── */
+.module-view { min-height: 100vh; }
+.module-hero { padding: 32px 40px 24px; border-bottom: 1.5px solid var(--line); display: flex; align-items: flex-start; gap: 20px; background: var(--card); }
+.hero-icon-wrap { width: 56px; height: 56px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; flex-shrink: 0; }
+.hero-text h1 { font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 900; line-height: 1.1; margin-bottom: 6px; letter-spacing: -.3px; }
+.hero-why { font-size: .82rem; color: var(--muted); line-height: 1.6; max-width: 640px; }
+.hero-plain { display: inline-block; font-size: .72rem; font-weight: 600; padding: 3px 10px; border-radius: 99px; margin-top: 8px; }
+.module-body { padding: 28px 40px 52px; display: grid; grid-template-columns: 1fr 340px; gap: 24px; align-items: start; }
+.col-main { display: flex; flex-direction: column; gap: 20px; }
+.col-side { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 24px; }
+.block { background: var(--card); border: 1.5px solid var(--line); border-radius: 12px; overflow: hidden; }
+.block-head { padding: 13px 18px 11px; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 8px; }
+.block-head-icon { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: .85rem; flex-shrink: 0; }
+.block-head h3 { font-size: .82rem; font-weight: 600; }
+.block-body { padding: 16px 18px; }
+.edit-area { border: 1.5px dashed var(--line); border-radius: 8px; padding: 12px 14px; background: var(--bg); margin-top: 8px; }
+.edit-area [contenteditable] { font-family: 'Plus Jakarta Sans', sans-serif; font-size: .82rem; line-height: 1.65; outline: none; min-height: 60px; display: block; background: transparent; width: 100%; overflow-wrap: break-word; }
+.field-save-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: transparent; margin-left: 6px; vertical-align: middle; transition: background .3s; }
+.field-save-dot.saving { background: #FB923C; animation: pulse 1s infinite; }
+.field-save-dot.saved  { background: #4ADE80; }
+.edit-area [contenteditable]:empty::before { content: attr(data-ph); color: #C8BFB5; pointer-events: none; }
+.edit-area [contenteditable]:focus { background: #FFFDF9; border-radius: 4px; }
+.edit-label { font-size: .65rem; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); margin-bottom: 4px; display: block; margin-top: 12px; }
+.edit-label:first-child { margin-top: 0; }
+.checklist { display: flex; flex-direction: column; gap: 8px; }
+.check-item { display: flex; align-items: flex-start; gap: 10px; cursor: pointer; padding: 8px 10px; border-radius: 8px; transition: background .15s; border: 1px solid transparent; }
+.check-item:hover { background: var(--bg); }
+.check-item.checked { background: #F0FDF4; border-color: #BBF7D0; }
+.check-box { width: 18px; height: 18px; border-radius: 5px; border: 2px solid var(--line); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; transition: all .15s; font-size: .65rem; color: transparent; }
+.check-item.checked .check-box { background: #16A34A; border-color: #16A34A; color: #fff; }
+.check-text { font-size: .8rem; line-height: 1.5; }
+.check-item.checked .check-text { text-decoration: line-through; color: var(--muted); }
+.info-pill { display: flex; gap: 10px; padding: 11px 14px; border-radius: 10px; margin-bottom: 10px; }
+.pill-icon { font-size: 1rem; flex-shrink: 0; }
+.pill-text strong { display: block; font-weight: 600; font-size: .78rem; margin-bottom: 2px; }
+.pill-text { font-size: .76rem; color: var(--muted); }
+.metric-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.metric-box { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+.metric-box label { display: block; font-size: .62rem; font-weight: 600; text-transform: uppercase; letter-spacing: .4px; color: var(--muted); margin-bottom: 4px; }
+.metric-box [contenteditable] { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 700; outline: none; background: transparent; display: block; min-height: 28px; }
+.metric-box [contenteditable]:empty::before { content: '—'; color: var(--line); }
+.tip-box { background: var(--tip-bg); border: 1px solid var(--tip-border); border-radius: 10px; padding: 13px 15px; font-size: .78rem; line-height: 1.6; color: var(--tip-text); }
+.tip-box strong { display: block; font-weight: 600; margin-bottom: 4px; }
+.stage-flow { display: flex; flex-direction: column; gap: 6px; }
+.stage-step { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); font-size: .78rem; }
+.stage-num { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: .65rem; font-weight: 700; color: #fff; flex-shrink: 0; margin-top: 2px; }
+.template-block { background: var(--bg); border: 1.5px dashed #D4C9BD; border-radius: 10px; padding: 14px 16px; margin-top: 8px; }
+.template-block .template-label { font-size: .62rem; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); margin-bottom: 8px; }
+.template-block [contenteditable] { font-family: 'Plus Jakarta Sans', sans-serif; font-size: .8rem; line-height: 1.7; outline: none; min-height: 80px; display: block; background: transparent; width: 100%; }
+.template-block [contenteditable]:empty::before { content: attr(data-ph); color: #C8BFB5; pointer-events: none; }
+.complete-btn { font-family: 'Plus Jakarta Sans', sans-serif; font-size: .8rem; font-weight: 600; padding: 11px 20px; border-radius: 10px; border: none; cursor: pointer; width: 100%; transition: all .2s; }
+.complete-btn.not-done { background: var(--line); color: var(--muted); }
+.complete-btn.done-state { background: #16A34A; color: #fff; }
+.progress-section { margin-bottom: 20px; }
+.progress-title { font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin-bottom: 10px; }
+
+@media (max-width: 1100px) { .module-body { grid-template-columns: 1fr; } .col-side { position: static; } .modules-grid { grid-template-columns: 1fr 1fr; } .ong-setup { grid-template-columns: 1fr 1fr; } }
+
+/* ── MOBILE TOPBAR ── */
+.mobile-topbar {
+  display: none;
+  position: fixed; top: 0; left: 0; right: 0;
+  height: 52px; z-index: 900;
+  background: var(--sidebar);
+  align-items: center;
+  padding: 0 16px;
+  gap: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,.3);
+}
+.mobile-topbar .brand-name-m {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.15rem; font-weight: 900;
+  color: #F5F0E8; flex: 1;
+  letter-spacing: -.2px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.hamburger {
+  width: 36px; height: 36px;
+  border-radius: 8px;
+  background: #2A2420;
+  border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 5px;
+  flex-shrink: 0;
+}
+.hamburger span {
+  display: block; width: 18px; height: 2px;
+  background: #F5F0E8; border-radius: 2px;
+  transition: all .25s;
+}
+.hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.hamburger.open span:nth-child(2) { opacity: 0; }
+.hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* ── SIDEBAR OVERLAY BACKDROP ── */
+.sidebar-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.5);
+  z-index: 910;
+  backdrop-filter: blur(2px);
+}
+.sidebar-overlay.visible { display: block; }
+
+@media (max-width: 768px) {
+  body { flex-direction: column; overflow: auto; height: auto; -webkit-font-smoothing: antialiased; }
+  * { -webkit-tap-highlight-color: transparent; }
+  .mobile-topbar { display: flex; }
+  .sidebar {
+    position: fixed; top: 0; left: 0;
+    height: 100vh; z-index: 920;
+    transform: translateX(-100%);
+    transition: transform .28s cubic-bezier(.4,0,.2,1);
+    width: 280px; min-width: 0;
+  }
+  .sidebar.open { transform: translateX(0); }
+  .main { width: 100%; height: auto; overflow: visible; padding-top: 52px; }
+  .sync-bar { left: 0; }
+  .view.active { display: block; }
+  #view-home { padding: 24px 16px 48px; }
+  .module-hero { padding: 20px 16px 16px; }
+  .module-body { padding: 16px 16px 48px; }
+  .modules-grid { grid-template-columns: 1fr; }
+  .ong-setup { grid-template-columns: 1fr; }
+  .metric-row { grid-template-columns: 1fr 1fr; }
+  .setup-card { padding: 24px 20px; }
+}
+
+@media print {
+  .sidebar { display: none; }
+  .mobile-topbar { display: none; }
+  .sidebar-overlay { display: none !important; }
+  .main { overflow: visible; height: auto; padding-top: 0; }
+  body { display: block; }
+  .view { display: block !important; }
+  .setup-overlay, .sync-bar, .sync-status { display: none !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- READ MODE BANNER -->
+<div class="read-banner" id="read-banner">
+  👁 Modo leitura — você está visualizando sem poder editar
+  <a onclick="exitReadMode()" style="color:#93C5FD;cursor:pointer;margin-left:8px;font-weight:600">Sair →</a>
+</div>
+
+<!-- ONBOARDING OVERLAY -->
+<div class="onboard-overlay hidden" id="onboard-overlay">
+  <div class="onboard-card">
+    <!-- Step 1 -->
+    <div class="onboard-step active" id="ob-step1">
+      <div class="step-label">Passo 1 de 3</div>
+      <h2>Bem-vinda ao Guia DonorApp 🌱</h2>
+      <p>Vamos entender onde a sua ONG está agora para sugerir por onde começar.</p>
+      <div class="onboard-options">
+        <div class="onboard-opt" onclick="obSelect(this,'situacao','nascendo')">🌱 Acabei de criar a ONG</div>
+        <div class="onboard-opt" onclick="obSelect(this,'situacao','crescendo')">🌿 Já temos doadores mas queremos crescer</div>
+        <div class="onboard-opt" onclick="obSelect(this,'situacao','retendo')">🌳 Temos doadores mas muitos estão parando</div>
+        <div class="onboard-opt" onclick="obSelect(this,'situacao','escalando')">🚀 Estamos prontos para escalar</div>
+      </div>
+      <button class="onboard-next" id="ob-next1" onclick="obNext(1)">Continuar →</button>
+      <span class="onboard-skip" onclick="skipOnboard()">Pular e ir direto ao painel</span>
+    </div>
+    <!-- Step 2 -->
+    <div class="onboard-step" id="ob-step2">
+      <div class="step-label">Passo 2 de 3</div>
+      <h2>Qual é o maior desafio agora?</h2>
+      <p>Escolha o que mais tira o seu sono hoje.</p>
+      <div class="onboard-options">
+        <div class="onboard-opt" onclick="obSelect(this,'desafio','visibilidade')">📢 Poucas pessoas conhecem a minha causa</div>
+        <div class="onboard-opt" onclick="obSelect(this,'desafio','conversao')">💸 Seguidores que não viram doadores</div>
+        <div class="onboard-opt" onclick="obSelect(this,'desafio','retencao')">💔 Doadores que somem depois da primeira doação</div>
+        <div class="onboard-opt" onclick="obSelect(this,'desafio','previsibilidade')">📉 Receita imprevisível mês a mês</div>
+      </div>
+      <button class="onboard-next" id="ob-next2" onclick="obNext(2)">Continuar →</button>
+    </div>
+    <!-- Step 3 — resultado -->
+    <div class="onboard-step" id="ob-step3">
+      <div class="step-label">Pronto! ✓</div>
+      <h2 id="ob-rec-title">Comece por aqui</h2>
+      <p id="ob-rec-desc"></p>
+      <button class="onboard-next visible" id="ob-go" onclick="obFinish()">Ir para o módulo recomendado →</button>
+      <span class="onboard-skip" onclick="skipOnboard()">Ver o painel completo primeiro</span>
+    </div>
+  </div>
+</div>
+
+<!-- METRICS HISTORY MODAL -->
+<div class="hist-overlay" id="hist-overlay" onclick="closeHist(event)">
+  <div class="hist-card">
+    <h3 id="hist-title">Histórico</h3>
+    <div class="hist-sub" id="hist-sub">Últimas atualizações deste número</div>
+    <div id="hist-list"></div>
+    <button class="hist-close" onclick="document.getElementById('hist-overlay').classList.remove('visible')">Fechar</button>
+  </div>
+</div>
+
+<!-- SYNC INDICATOR -->
+<div class="sync-bar" id="sync-bar"></div>
+<div class="sync-status" id="sync-status">
+  <div class="sync-dot green" id="sync-dot"></div>
+  <span id="sync-text">Sincronizado</span>
+</div>
+
+<!-- SETUP OVERLAY (aparece se não houver chaves configuradas) -->
+<div class="setup-overlay" id="setup-overlay">
+  <div class="setup-card">
+    <h2>Conectar ao banco de dados 🔌</h2>
+    <p>Para que sua equipe acesse os dados ao mesmo tempo, você precisa informar as chaves do Supabase. Siga o tutorial no arquivo <strong>TUTORIAL.html</strong> para obtê-las em 5 minutos.</p>
+    <div class="setup-input-wrap">
+      <label>URL do projeto (começa com https://)</label>
+      <input type="text" id="input-url" placeholder="https://xxxxxxxx.supabase.co" />
+    </div>
+    <div class="setup-input-wrap">
+      <label>Chave anon/public</label>
+      <input type="text" id="input-key" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6..." />
+    </div>
+    <div class="setup-input-wrap">
+      <label>Nome da sua ONG (sem espaços ou acentos)</label>
+      <input type="text" id="input-org" placeholder="ex: instituto-sementes" value="minha-ong" />
+    </div>
+    <button class="setup-connect-btn" onclick="connectSupabase()">Conectar e salvar →</button>
+    <div class="setup-error" id="setup-error">Não consegui conectar. Verifique se as chaves estão corretas.</div>
+    <div class="setup-note">💡 As chaves ficam salvas só no seu navegador e nunca são enviadas para nenhum lugar além do Supabase.</div>
+  </div>
+</div>
+
+<!-- MOBILE TOPBAR -->
+<div class="mobile-topbar">
+  <button class="hamburger" id="hamburger" onclick="toggleSidebar()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="brand-name-m">🌱 Guia DonorApp</div>
+  <button class="dark-toggle" onclick="toggleDark()" id="dark-toggle-btn" title="Alternar modo escuro">🌙</button>
+  <button class="share-btn" onclick="shareModule()" title="Compartilhar módulo">🔗</button>
+</div>
+
+<!-- SIDEBAR BACKDROP -->
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<!-- SIDEBAR -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon">🌱</div>
+    <div class="brand-name">Guia DonorApp</div>
+    <div class="brand-sub">para líderes de ONGs</div>
+  </div>
+  <div class="sidebar-section">Início</div>
+  <div class="nav-item active" onclick="showView('home')" id="nav-home">
+    <div class="nav-dot" style="background:#E9873A"></div>
+    <span class="nav-label">Painel da minha ONG</span>
+  </div>
+  <div class="sidebar-section">Módulos</div>
+  <div class="nav-item" onclick="showView('m1')" id="nav-m1"><div class="nav-dot" style="background:var(--c1)"></div><span class="nav-label">Jornada do Apoiador</span><div class="nav-check" id="chk-m1"></div></div>
+  <div class="nav-item" onclick="showView('m2')" id="nav-m2"><div class="nav-dot" style="background:var(--c2)"></div><span class="nav-label">Captação online</span><div class="nav-check" id="chk-m2"></div></div>
+  <div class="nav-item" onclick="showView('m3')" id="nav-m3"><div class="nav-dot" style="background:var(--c3)"></div><span class="nav-label">Manter quem já doa</span><div class="nav-check" id="chk-m3"></div></div>
+  <div class="nav-item" onclick="showView('m4')" id="nav-m4"><div class="nav-dot" style="background:var(--c4)"></div><span class="nav-label">Campanhas</span><div class="nav-check" id="chk-m4"></div></div>
+  <div class="nav-item" onclick="showView('m5')" id="nav-m5"><div class="nav-dot" style="background:var(--c5)"></div><span class="nav-label">Grandes doadores</span><div class="nav-check" id="chk-m5"></div></div>
+  <div class="nav-item" onclick="showView('m6')" id="nav-m6"><div class="nav-dot" style="background:var(--c6)"></div><span class="nav-label">Agradecer de verdade</span><div class="nav-check" id="chk-m6"></div></div>
+  <div class="nav-item" onclick="showView('m7')" id="nav-m7"><div class="nav-dot" style="background:var(--c7)"></div><span class="nav-label">Doação todo mês</span><div class="nav-check" id="chk-m7"></div></div>
+  <div class="nav-item" onclick="showView('m8')" id="nav-m8"><div class="nav-dot" style="background:var(--c8)"></div><span class="nav-label">Envolver as pessoas</span><div class="nav-check" id="chk-m8"></div></div>
+  <div class="nav-item" onclick="showView('m9')" id="nav-m9"><div class="nav-dot" style="background:var(--c9)"></div><span class="nav-label">Terça de Doar</span><div class="nav-check" id="chk-m9"></div></div>
+  <div class="sidebar-footer">
+    <button class="sidebar-btn btn-print" onclick="exportPDF()">📄 Exportar PDF</button>
+    <button class="sidebar-btn btn-config" onclick="showSetup()">⚙️ Reconfigurar banco</button>
+    <button class="sidebar-btn" style="background:#2A2420;color:#C4B5A8" onclick="toggleDark()">🌙 Modo escuro</button>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- HOME -->
+<div class="view active" id="view-home">
+  <div style="padding:36px 40px 48px">
+    <div class="dash-greeting">Olá, bem-vinda ao seu<br><span>guia de captação.</span></div>
+    <div class="dash-sub">Este é o espaço da sua equipe para organizar como a ONG vai encontrar, conquistar e manter as pessoas que acreditam na sua causa. Todas as edições são salvas automaticamente e visíveis para todos da equipe.</div>
+    <div class="ong-setup">
+      <div class="setup-field"><label>Nome da ONG</label><div contenteditable="true" data-ph="Ex: Instituto Sementes" data-key="ong_nome"></div></div>
+      <div class="setup-field"><label>Nome da líder</label><div contenteditable="true" data-ph="Seu nome" data-key="ong_lider"></div></div>
+      <div class="setup-field"><label>Causa principal</label><div contenteditable="true" data-ph="Ex: Educação infantil em comunidades" data-key="ong_causa"></div></div>
+      <div class="setup-field"><label>Meta de apoiadores (este ano)</label><div contenteditable="true" data-ph="Ex: 50 mantenedores mensais" data-key="ong_meta_apo"></div></div>
+      <div class="setup-field"><label>Meta de captação (R$/mês)</label><div contenteditable="true" data-ph="Ex: R$ 3.000/mês" data-key="ong_meta_rs"></div></div>
+      <div class="setup-field"><label>Atualizado em</label><div contenteditable="true" data-ph="dd/mm/aaaa" data-key="ong_data"></div></div>
+    </div>
+    <div class="progress-section">
+      <div class="progress-title">Progresso nos módulos</div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-bar"></div></div>
+      <div class="progress-label" id="prog-label">0 de 9 módulos concluídos</div>
+    </div>
+    <div class="modules-grid">
+      <div class="module-card" style="--accent:var(--c1)" onclick="showView('m1')"><div class="mc-badge start" id="badge-m1">Começar</div><div class="mc-icon">🗺️</div><div class="mc-title">Jornada do Apoiador</div><div class="mc-desc">Como uma pessoa estranha vira mantenedor fiel da sua causa.</div></div>
+      <div class="module-card" style="--accent:var(--c2)" onclick="showView('m2')"><div class="mc-badge start" id="badge-m2">Começar</div><div class="mc-icon">💻</div><div class="mc-title">Captação online</div><div class="mc-desc">Como pedir doações pela internet sem parecer chato ou desesperado.</div></div>
+      <div class="module-card" style="--accent:var(--c3)" onclick="showView('m3')"><div class="mc-badge start" id="badge-m3">Começar</div><div class="mc-icon">🤝</div><div class="mc-title">Manter quem já doa</div><div class="mc-desc">O doador que você tem vale mais do que o que você ainda não tem.</div></div>
+      <div class="module-card" style="--accent:var(--c4)" onclick="showView('m4')"><div class="mc-badge start" id="badge-m4">Começar</div><div class="mc-icon">📣</div><div class="mc-title">Campanhas</div><div class="mc-desc">Como criar um momento de doação com começo, meio e fim.</div></div>
+      <div class="module-card" style="--accent:var(--c5)" onclick="showView('m5')"><div class="mc-badge start" id="badge-m5">Começar</div><div class="mc-icon">🌟</div><div class="mc-title">Grandes doadores</div><div class="mc-desc">Como encontrar e cultivar quem pode fazer uma doação maior.</div></div>
+      <div class="module-card" style="--accent:var(--c6)" onclick="showView('m6')"><div class="mc-badge start" id="badge-m6">Começar</div><div class="mc-icon">💌</div><div class="mc-title">Agradecer de verdade</div><div class="mc-desc">Como fazer o doador sentir que fez a melhor decisão.</div></div>
+      <div class="module-card" style="--accent:var(--c7)" onclick="showView('m7')"><div class="mc-badge start" id="badge-m7">Começar</div><div class="mc-icon">🔄</div><div class="mc-title">Doação todo mês</div><div class="mc-desc">Como criar uma renda previsível para a ONG.</div></div>
+      <div class="module-card" style="--accent:var(--c8)" onclick="showView('m8')"><div class="mc-badge start" id="badge-m8">Começar</div><div class="mc-icon">🔥</div><div class="mc-title">Envolver as pessoas</div><div class="mc-desc">Como fazer seguidores se importarem de verdade.</div></div>
+      <div class="module-card" style="--accent:var(--c9)" onclick="showView('m9')"><div class="mc-badge start" id="badge-m9">Começar</div><div class="mc-icon">🎁</div><div class="mc-title">Terça de Doar</div><div class="mc-desc">Como aproveitar o maior dia de doações do mundo.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- M1 -->
+<div class="view" id="view-m1"><div class="module-view">
+  <div class="module-hero" style="border-left:4px solid var(--c1)"><div class="hero-icon-wrap" style="background:var(--c1l)">🗺️</div><div class="hero-text"><h1>Jornada do Apoiador</h1><div class="hero-why">Uma pessoa não vira doadora do nada. Ela passa por etapas: primeiro te conhece, depois te segue, depois confia, e só então doa. Entender esse caminho muda tudo na forma como você se comunica.</div><span class="hero-plain" style="background:var(--c1l);color:var(--c1)">Em linguagem simples: o caminho de estranho até fã que apoia</span></div></div>
+  <div class="module-body"><div class="col-main">
+    <div class="block"><div class="block-head"><div class="block-head-icon" style="background:var(--c1l)">👤</div><h3>Quem é a líder pública (você)</h3></div><div class="block-body">
+      <div class="tip-box"><strong>Por que isso importa</strong>Pessoas doam para pessoas, não para logos. Antes de qualquer campanha, você precisa estar clara sobre quem você é publicamente.</div>
+      <span class="edit-label">Sua missão em uma frase</span><div class="edit-area"><div contenteditable="true" data-key="m1_missao" data-ph="Ex: Eu ajudo crianças que cresceram como eu cresci a terem uma chance real na educação."></div></div>
+      <span class="edit-label">Por que VOCÊ cuida dessa causa?</span><div class="edit-area"><div contenteditable="true" data-key="m1_historia" data-ph="Conte o que aconteceu com você ou alguém próximo que te fez criar essa ONG."></div></div>
+      <span class="edit-label">Onde você aparece publicamente</span><div class="edit-area"><div contenteditable="true" data-key="m1_plataformas" data-ph="Ex: Instagram (diário), YouTube (quinzenal), lives no WhatsApp (mensal)"></div></div>
+    </div></div>
+    <div class="block"><div class="block-head"><div class="block-head-icon" style="background:var(--c1l)">🪜</div><h3>As 5 etapas da jornada</h3></div><div class="block-body"><div class="stage-flow">
+      <div class="stage-step"><div class="stage-num" style="background:var(--c1)">1</div><div style="flex:1"><strong style="font-size:.78rem">Nunca me ouviu falar</strong><div class="edit-area" style="margin-top:6px"><div contenteditable="true" data-key="m1_etapa1" data-ph="Como essa pessoa vai te encontrar? Reels, indicação, evento?"></div></div></div></div>
+      <div class="stage-step"><div class="stage-num" style="background:var(--c2)">2</div><div style="flex:1"><strong style="font-size:.78rem">Me segue mas ainda não doou</strong><div class="edit-area" style="margin-top:6px"><div contenteditable="true" data-key="m1_etapa2" data-ph="O que você vai oferecer para ela entrar na sua lista de e-mail ou WhatsApp?"></div></div></div></div>
+      <div class="stage-step"><div class="stage-num" style="background:var(--c3)">3</div><div style="flex:1"><strong style="font-size:.78rem">Fez a primeira doação</strong><div class="edit-area" style="margin-top:6px"><div contenteditable="true" data-key="m1_etapa3" data-ph="O que acontece nas 48h depois da primeira doação?"></div></div></div></div>
+      <div class="stage-step"><div class="stage-num" style="background:var(--c4)">4</div><div style="flex:1"><strong style="font-size:.78rem">Doa todo mês (mantenedor)</strong><div class="edit-area" style="margin-top:6px"><div contenteditable="true" data-key="m1_etapa4" data-ph="Como você vai fazer com que ele se sinta parte de um grupo especial?"></div></div></div></div>
+      <div class="stage-step"><div class="stage-num" style="background:var(--c5)">5</div><div style="flex:1"><strong style="font-size:.78rem">Fala da sua ONG para outros</strong><div class="edit-area" style="margin-top:6px"><div contenteditable="true" data-key="m1_etapa5" data-ph="Como você vai convidar mantenedores para captarem por você?"></div></div></div></div>
+    </div></div></div>
+  </div><div class="col-side">
+    <div class="block"><div class="block-head"><div class="block-head-icon" style="background:var(--c1l)">✅</div><h3>O que fazer esta semana</h3></div><div class="block-body"><div class="checklist">
+      <div class="check-item" data-key="m1_c1" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Escrever minha missão em uma frase</span></div>
+      <div class="check-item" data-key="m1_c2" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Escrever a história de por que criei a ONG</span></div>
+      <div class="check-item" data-key="m1_c3" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Definir onde vou aparecer e com que frequência</span></div>
+      <div class="check-item" data-key="m1_c4" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Definir o que ofereço para quem entra na minha lista</span></div>
+      <div class="check-item" data-key="m1_c5" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Criar minha sequência de 48h após a primeira doação</span></div>
+    </div></div></div>
+    <div class="block"><div class="block-head"><div class="block-head-icon" style="background:var(--c1l)">📊</div><h3>Meus números</h3></div><div class="block-body"><div class="metric-row">
+      <div class="metric-box-wrap"><div class="metric-box"><label>Seguidores</label><div contenteditable="true" data-key="m1_n1"></div><button class="hist-btn" onclick="openHist('m1_n1','Seguidores')">📈</button></div></div>
+      <div class="metric-box-wrap"><div class="metric-box"><label>Leads</label><div contenteditable="true" data-key="m1_n2"></div><button class="hist-btn" onclick="openHist('m1_n2','Leads')">📈</button></div></div>
+      <div class="metric-box-wrap"><div class="metric-box"><label>Doadores</label><div contenteditable="true" data-key="m1_n3"></div><button class="hist-btn" onclick="openHist('m1_n3','Doadores')">📈</button></div></div>
+      <div class="metric-box-wrap"><div class="metric-box"><label>Mantenedores</label><div contenteditable="true" data-key="m1_n4"></div><button class="hist-btn" onclick="openHist('m1_n4','Mantenedores')">📈</button></div></div>
+    </div></div></div>
+    <button class="complete-btn not-done" id="done-m1" onclick="markDone('m1')">Marcar módulo como concluído</button>
+  </div></div>
+</div></div>
+
+<!-- M2 -->
+<div class="view" id="view-m2"><div class="module-view">
+  <div class="module-hero" style="border-left:4px solid var(--c2)"><div class="hero-icon-wrap" style="background:var(--c2l)">💻</div><div class="hero-text"><h1>Captação online</h1><div class="hero-why">Pedir doações pela internet não é sobre ter um site bonito. É sobre fazer a pessoa certa encontrar você, confiar em você e dar o clique.</div><span class="hero-plain" style="background:var(--c2l);color:var(--c2)">Em linguagem simples: como pedir dinheiro sem parecer chato</span></div></div>
+  <div class="module-body"><div class="col-main">
+    <div class="block"><div class="block-head"><div class="block-head-icon" style="background:var(--c2l)">🔗</div><h3>Onde as pessoas podem doar?</h3></div><div class="block-body">
+      <div class="tip-box"><strong>A regra mais importante</strong>Se a pessoa precisar de mais de 2 cliques para chegar até o botão de doação, você perdeu ela.</div>
+      <span class="edit-label">Link principal de doação</span><div class="edit-area"><div contenteditable="true" data-key="m2_link" data-ph="Ex: doare.org/minha-ong ou apoia.se/causa"></div></div>
+      <span class="edit-label">Onde esse link aparece?</span><div class="edit-area"><div contenteditable="true" data-key="m2_onde" data-ph="Ex: Link na bio do Instagram, botão no site, assinatura do e-mail"></div></div>
+    </div></div>
+    <div class="block"><div class="block-head"><div class="block-head-icon" style="background:var(--c2l)">💬</div><h3>Como pedir sem parecer chato</h3></div><div class="block-body">
+      <div class="info-pill" style="background:var(--c2l)"><span class="pill-icon">💡</span><div class="pill-text"><strong>A fórmula que funciona</strong>Conte a história de um beneficiado real → mostre o impacto concreto → diga exatamente quanto resolve o problema → convide para ajudar.</div></div>
+      <div class="template-block"><div class="template-label">Rascunho do seu pedido</div><div contenteditable="true" data-key="m2_pedido" data-ph="Ex: 'A Maria tinha 8 anos e nunca tinha segurado um livro. Hoje ela lê para a mãe antes de dormir. Com R$30 por mês, uma criança como ela ganha acesso a aulas e material. Você topa fazer parte disso?'"></div></div>
+    </div></div>
+    <div class="block"><div class="block-head"><div class="block-head-icon" style="background:var(--c2l)">💰</div><h3>Valores sugeridos para doação</h3></div><div class="block-body">
+      <div class="tip-box"><strong>Por que definir valores específicos?</strong>"R$15 paga o material de uma criança por um mês" é infinitamente mais poderoso do que "qualquer valor ajuda".</div>
+      <div class="metric-row" style="margin-top:12px">
+        <div class="metric-box-wrap"><div class="metric-box"><label>Valor pequeno (R$)</label><div contenteditable="true" data-key="m2_v1"></div><button class="hist-btn" onclick="openHist('m2_v1','Valor pequeno (R$)')">📈</button></div></div>
+        <div class="metric-box-wrap"><div class="metric-box"><label>O que resolve</label><div contenteditable="true" data-key="m2_v1d"></div><button class="hist-btn" onclick="openHist('m2_v1d','O que resolve')">📈</button></div></div>
+        <div class="metric-box-wrap"><div class="metric-box"><label>Valor médio (R$)</label><div contenteditable="true" data-key="m2_v2"></div><button class="hist-btn" onclick="openHist('m2_v2','Valor médio (R$)')">📈</button></div></div>
+        <div class="metric-box-wrap"><div class="metric-box"><label>O que resolve</label><div contenteditable="true" data-key="m2_v2d"></div><button class="hist-btn" onclick="openHist('m2_v2d','O que resolve')">📈</button></div></div>
+        <div class="metric-box-wrap"><div class="metric-box"><label>Valor alto (R$)</label><div contenteditable="true" data-key="m2_v3"></div><button class="hist-btn" onclick="openHist('m2_v3','Valor alto (R$)')">📈</button></div></div>
+        <div class="metric-box-wrap"><div class="metric-box"><label>O que resolve</label><div contenteditable="true" data-key="m2_v3d"></div><button class="hist-btn" onclick="openHist('m2_v3d','O que resolve')">📈</button></div></div>
+      </div>
+    </div></div>
+  </div><div class="col-side">
+    <div class="block"><div class="block-head"><div class="block-head-icon" style="background:var(--c2l)">✅</div><h3>O que fazer esta semana</h3></div><div class="block-body"><div class="checklist">
+      <div class="check-item" data-key="m2_c1" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Criar ou revisar minha página de doação</span></div>
+      <div class="check-item" data-key="m2_c2" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Colocar link de doação em todos os perfis</span></div>
+      <div class="check-item" data-key="m2_c3" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Escrever meu primeiro pedido usando a fórmula</span></div>
+      <div class="check-item" data-key="m2_c4" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Definir os 3 valores sugeridos com impacto de cada um</span></div>
+      <div class="check-item" data-key="m2_c5" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Testar o processo de doação como se fosse um doador</span></div>
+    </div></div></div>
+    <div class="block"><div class="block-head"><div class="block-head-icon" style="background:var(--c2l)">📊</div><h3>Meus números</h3></div><div class="block-body"><div class="metric-row">
+      <div class="metric-box-wrap"><div class="metric-box"><label>Doações este mês</label><div contenteditable="true" data-key="m2_n1"></div><button class="hist-btn" onclick="openHist('m2_n1','Doações este mês')">📈</button></div></div>
+      <div class="metric-box-wrap"><div class="metric-box"><label>Total (R$)</label><div contenteditable="true" data-key="m2_n2"></div><button class="hist-btn" onclick="openHist('m2_n2','Total (R$)')">📈</button></div></div>
+      <div class="metric-box-wrap"><div class="metric-box"><label>Ticket médio</label><div contenteditable="true" data-key="m2_n3"></div><button class="hist-btn" onclick="openHist('m2_n3','Ticket médio')">📈</button></div></div>
+      <div class="metric-box-wrap"><div class="metric-box"><label>Cliques no link</label><div contenteditable="true" data-key="m2_n4"></div><button class="hist-btn" onclick="openHist('m2_n4','Cliques no link')">📈</button></div></div>
+    </div></div></div>
+    <button class="complete-btn not-done" id="done-m2" onclick="markDone('m2')">Marcar módulo como concluído</button>
+  </div></div>
+</div></div>
+
+<!-- M3–M9: estrutura condensada mas funcional -->
+<div class="view" id="view-m3"><div class="module-view">
+  <div class="module-hero" style="border-left:4px solid var(--c3)"><div class="hero-icon-wrap" style="background:var(--c3l)">🤝</div><div class="hero-text"><h1>Manter quem já doa</h1><div class="hero-why">Conseguir um novo doador custa até 5 vezes mais do que manter um que já existe. Antes de correr atrás de gente nova, cuide de quem já está com você.</div><span class="hero-plain" style="background:var(--c3l);color:var(--c3)">Em linguagem simples: não deixe quem já acreditou em você sumir</span></div></div>
+  <div class="module-body"><div class="col-main">
+    <div class="block"><div class="block-head"><div class="block-head-icon" style="background:var(--c3l)">📋</div><h3>Quem são seus doadores hoje?</h3></div><div class="block-body">
+      <div class="tip-box"><strong>Primeiro passo</strong>Você precisa saber quem são, quando doaram pela última vez e se estão ativos — mesmo que seja uma lista simples.</div>
+      <span class="edit-label">Como você registra seus doadores hoje?</span><div class="edit-area"><div contenteditable="true" data-key="m3_registro" data-ph="Ex: Planilha no Google Sheets com nome, e-mail, valor e data da última doação."></div></div>
+      <span class="edit-label">Quantos doadores você tem e há quanto tempo?</span><div class="edit-area"><div contenteditable="true" data-key="m3_base" data-ph="Ex: 23 doadores. 8 doam há mais de 1 ano. 10 doaram só uma vez. 5 pararam há mais de 3 meses."></div></div>
+    </div></div>
+    <div class="block"><div class="block-head"><div class="block-head-icon" style="background:var(--c3l)">💞</div><h3>O que você faz para manter o vínculo?</h3></div><div class="block-body">
+      <div class="info-pill" style="background:var(--c3l)"><span class="pill-icon">🧠</span><div class="pill-text"><strong>O que a ciência diz</strong>Doadores que recebem uma mensagem pessoal têm 4x mais chance de renovar. Você não precisa de sistema caro — precisa de consistência.</div></div>
+      <span class="edit-label">Seu ritual mensal com mantenedores</span><div class="edit-area"><div contenteditable="true" data-key="m3_ritual" data-ph="Ex: Todo dia 5 envio um áudio de 1 minuto para o grupo de mantenedores."></div></div>
+      <span class="edit-label">O que você faz quando alguém para de doar?</span><div class="edit-area"><div contenteditable="true" data-key="m3_churn" data-ph="Ex: Quando percebo que alguém não interagiu por 2 meses, envio mensagem pessoal."></div></div>
+    </div></div>
+  </div><div class="col-side">
+    <div class="block"><div class="block-head"><div class="block-head-icon" style="background:var(--c3l)">✅</div><h3>O que fazer esta semana</h3></div><div class="block-body"><div class="checklist">
+      <div class="check-item" data-key="m3_c1" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Listar todos os meus doadores ativos</span></div>
+      <div class="check-item" data-key="m3_c2" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Identificar quem não doa há mais de 60 dias</span></div>
+      <div class="check-item" data-key="m3_c3" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Mandar mensagem pessoal para os que sumiram</span></div>
+      <div class="check-item" data-key="m3_c4" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Criar grupo exclusivo para mantenedores</span></div>
+      <div class="check-item" data-key="m3_c5" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Definir o que vou comunicar mensalmente para eles</span></div>
+    </div></div></div>
+    <div class="block"><div class="block-head"><div class="block-head-icon" style="background:var(--c3l)">📊</div><h3>Meus números</h3></div><div class="block-body"><div class="metric-row">
+      <div class="metric-box-wrap"><div class="metric-box"><label>Doadores ativos</label><div contenteditable="true" data-key="m3_n1"></div><button class="hist-btn" onclick="openHist('m3_n1','Doadores ativos')">📈</button></div></div>
+      <div class="metric-box-wrap"><div class="metric-box"><label>Inativos +60 dias</label><div contenteditable="true" data-key="m3_n2"></div><button class="hist-btn" onclick="openHist('m3_n2','Inativos +60 dias')">📈</button></div></div>
+      <div class="metric-box-wrap"><div class="metric-box"><label>Taxa de retenção</label><div contenteditable="true" data-key="m3_n3"></div><button class="hist-btn" onclick="openHist('m3_n3','Taxa de retenção')">📈</button></div></div>
+      <div class="metric-box-wrap"><div class="metric-box"><label>Tempo médio</label><div contenteditable="true" data-key="m3_n4"></div><button class="hist-btn" onclick="openHist('m3_n4','Tempo médio')">📈</button></div></div>
+    </div></div></div>
+    <button class="complete-btn not-done" id="done-m3" onclick="markDone('m3')">Marcar módulo como concluído</button>
+  </div></div>
+</div></div>
+
+<div class="view" id="view-m4"><div class="module-view">
+  <div class="module-hero" style="border-left:4px solid var(--c4)"><div class="hero-icon-wrap" style="background:var(--c4l)">📣</div><div class="hero-text"><h1>Campanhas</h1><div class="hero-why">Uma campanha é um pedido de doação com começo, meio, fim e uma razão clara para acontecer agora. Sem urgência real, não há ação.</div><span class="hero-plain" style="background:var(--c4l);color:var(--c4)">Em linguagem simples: como criar um evento de doação que funciona</span></div></div>
+  <div class="module-body"><div class="col-main">
+    <div class="block"><div class="block-head"><div class="block-head-icon" style="background:var(--c4l)">🗓️</div><h3>Planejar uma campanha do zero</h3></div><div class="block-body">
+      <div class="tip-box"><strong>A anatomia de uma campanha que funciona</strong>Toda boa campanha responde: Por quê agora? Para quem? Quanto queremos? O que acontece se a meta for batida? Como as pessoas vão saber?</div>
+      <span class="edit-label">Nome da campanha</span><div class="edit-area"><div contenteditable="true" data-key="m4_nome" data-ph="Ex: 'Volta às aulas com a gente' — Janeiro 2025"></div></div>
+      <span class="edit-label">Por que agora? (a urgência real)</span><div class="edit-area"><div contenteditable="true" data-key="m4_urgencia" data-ph="Ex: Em fevereiro começam as aulas e temos 30 crianças sem material. Precisamos de R$1.500 até dia 31."></div></div>
+      <span class="edit-label">Meta e o que ela representa</span><div class="edit-area"><div contenteditable="true" data-key="m4_meta" data-ph="Ex: Meta: R$1.500 — cobre material para 30 crianças por um semestre."></div></div>
+      <span class="edit-label">Cronograma da campanha</span><div class="edit-area"><div contenteditable="true" data-key="m4_crono" data-ph="Dia 1: Anúncio + história&#10;Dia 5: Atualização da meta&#10;Dia 10: Depoimento de doador&#10;Dia 14: Urgência final&#10;Dia 15: Resultado + agradecimento"></div></div>
+    </div></div>
+  </div><div class="col-side">
+    <div class="block"><div class="block-head"><div class="block-head-icon" style="background:var(--c4l)">✅</div><h3>O que fazer esta semana</h3></div><div class="block-body"><div class="checklist">
+      <div class="check-item" data-key="m4_c1" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Definir a próxima campanha e a data</span></div>
+      <div class="check-item" data-key="m4_c2" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Escrever a urgência real da campanha</span></div>
+      <div class="check-item" data-key="m4_c3" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Criar meta com valor tangível</span></div>
+      <div class="check-item" data-key="m4_c4" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Montar o cronograma de comunicação</span></div>
+      <div class="check-item" data-key="m4_c5" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Preparar termômetro visual da meta</span></div>
+    </div></div></div>
+    <div class="block"><div class="block-head"><div class="block-head-icon" style="background:var(--c4l)">📊</div><h3>Resultados</h3></div><div class="block-body"><div class="metric-row">
+      <div class="metric-box-wrap"><div class="metric-box"><label>Meta (R$)</label><div contenteditable="true" data-key="m4_n1"></div><button class="hist-btn" onclick="openHist('m4_n1','Meta (R$)')">📈</button></div></div>
+      <div class="metric-box-wrap"><div class="metric-box"><label>Arrecadado (R$)</label><div contenteditable="true" data-key="m4_n2"></div><button class="hist-btn" onclick="openHist('m4_n2','Arrecadado (R$)')">📈</button></div></div>
+      <div class="metric-box-wrap"><div class="metric-box"><label>Novos doadores</label><div contenteditable="true" data-key="m4_n3"></div><button class="hist-btn" onclick="openHist('m4_n3','Novos doadores')">📈</button></div></div>
+      <div class="metric-box-wrap"><div class="metric-box"><label>Duração (dias)</label><div contenteditable="true" data-key="m4_n4"></div><button class="hist-btn" onclick="openHist('m4_n4','Duração (dias)')">📈</button></div></div>
+    </div></div></div>
+    <button class="complete-btn not-done" id="done-m4" onclick="markDone('m4')">Marcar módulo como concluído</button>
+  </div></div>
+</div></div>
+
+<div class="view" id="view-m5"><div class="module-view">
+  <div class="module-hero" style="border-left:4px solid var(--c5)"><div class="hero-icon-wrap" style="background:var(--c5l)">🌟</div><div class="hero-text"><h1>Grandes doadores</h1><div class="hero-why">Cultivar essa relação é mais sobre escuta e paciência do que sobre pedir dinheiro. A regra prática: 3 contatos de valor antes do primeiro pedido.</div><span class="hero-plain" style="background:var(--c5l);color:var(--c5)">Em linguagem simples: como encontrar quem pode dar mais</span></div></div>
+  <div class="module-body"><div class="col-main">
+    <div class="block"><div class="block-head"><div class="block-head-icon" style="background:var(--c5l)">🔍</div><h3>Quem pode ser um grande doador?</h3></div><div class="block-body">
+      <div class="tip-box"><strong>Onde procurar</strong>Olhe para dentro primeiro. Seus mantenedores mais fiéis, ex-beneficiados que cresceram, pessoas na sua rede pessoal que já admiram seu trabalho.</div>
+      <span class="edit-label">Liste 3 a 5 candidatos</span><div class="edit-area"><div contenteditable="true" data-key="m5_candidatos" data-ph="Nome / Conexão com a causa / Por que faz sentido abordá-la"></div></div>
+      <span class="edit-label">O que você oferece de especial para grandes doadores?</span><div class="edit-area"><div contenteditable="true" data-key="m5_oferta" data-ph="Ex: Visita à operação, relatório personalizado, papel de consultor honorário."></div></div>
+      <span class="edit-label">Plano de cultivo em 90 dias</span><div class="edit-area"><div contenteditable="true" data-key="m5_plano" data-ph="Mês 1: Compartilhar resultado impactante&#10;Mês 2: Reunião de troca — ouvir o que ele pensa&#10;Mês 3: Apresentar o projeto e fazer o pedido"></div></div>
+    </div></div>
+  </div><div class="col-side">
+    <div class="block"><div class="block-head"><div class="block-head-icon" style="background:var(--c5l)">✅</div><h3>O que fazer esta semana</h3></div><div class="block-body"><div class="checklist">
+      <div class="check-item" data-key="m5_c1" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Listar 3 candidatos a grandes doadores</span></div>
+      <div class="check-item" data-key="m5_c2" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Entrar em contato com um deles (sem pedir nada)</span></div>
+      <div class="check-item" data-key="m5_c3" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Definir o que ofereço de especial para esse grupo</span></div>
+      <div class="check-item" data-key="m5_c4" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Criar plano de 90 dias para o candidato principal</span></div>
+    </div></div></div>
+    <button class="complete-btn not-done" id="done-m5" onclick="markDone('m5')">Marcar módulo como concluído</button>
+  </div></div>
+</div></div>
+
+<div class="view" id="view-m6"><div class="module-view">
+  <div class="module-hero" style="border-left:4px solid var(--c6)"><div class="hero-icon-wrap" style="background:var(--c6l)">💌</div><div class="hero-text"><h1>Agradecer de verdade</h1><div class="hero-why">A janela de agradecimento nas 48h após a doação é crítica para criar vínculo e garantir renovação.</div><span class="hero-plain" style="background:var(--c6l);color:var(--c6)">Em linguagem simples: como fazer o doador sentir que fez a coisa certa</span></div></div>
+  <div class="module-body"><div class="col-main">
+    <div class="block"><div class="block-head"><div class="block-head-icon" style="background:var(--c6l)">⏱️</div><h3>A sequência em 72 horas</h3></div><div class="block-body">
+      <span class="edit-label">0–1 hora — imediatamente após a doação</span><div class="edit-area"><div contenteditable="true" data-key="m6_h0" data-ph="Ex: E-mail automático com o nome do doador, o valor exato e o que aquele valor faz na prática."></div></div>
+      <span class="edit-label">24 horas — mensagem pessoal</span><div class="edit-area"><div contenteditable="true" data-key="m6_h24" data-ph="Ex: Áudio de 30 segundos da líder pelo WhatsApp dizendo obrigada pelo nome."></div></div>
+      <span class="edit-label">72 horas — prova de impacto</span><div class="edit-area"><div contenteditable="true" data-key="m6_h72" data-ph="Ex: Foto ou vídeo curto mostrando onde a doação foi aplicada."></div></div>
+    </div></div>
+    <div class="block"><div class="block-head"><div class="block-head-icon" style="background:var(--c6l)">✍️</div><h3>Modelo de agradecimento</h3></div><div class="block-body">
+      <div class="template-block"><div class="template-label">Escreva seu modelo</div><div contenteditable="true" data-key="m6_modelo" data-ph="[Nome],&#10;&#10;Você acabou de fazer algo que vai durar mais do que essa semana.&#10;&#10;Com os seus R$[valor], [descreva o impacto concreto].&#10;&#10;Obrigada por acreditar nisso junto comigo.&#10;&#10;[Sua assinatura]"></div></div>
+    </div></div>
+  </div><div class="col-side">
+    <div class="block"><div class="block-head"><div class="block-head-icon" style="background:var(--c6l)">✅</div><h3>O que fazer esta semana</h3></div><div class="block-body"><div class="checklist">
+      <div class="check-item" data-key="m6_c1" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Criar e-mail automático de agradecimento</span></div>
+      <div class="check-item" data-key="m6_c2" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Gravar áudio-modelo de agradecimento pessoal</span></div>
+      <div class="check-item" data-key="m6_c3" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Criar rotina de enviar prova de impacto em 72h</span></div>
+      <div class="check-item" data-key="m6_c4" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Agradecer pessoalmente os 5 doadores mais antigos</span></div>
+    </div></div></div>
+    <button class="complete-btn not-done" id="done-m6" onclick="markDone('m6')">Marcar módulo como concluído</button>
+  </div></div>
+</div></div>
+
+<div class="view" id="view-m7"><div class="module-view">
+  <div class="module-hero" style="border-left:4px solid var(--c7)"><div class="hero-icon-wrap" style="background:var(--c7l)">🔄</div><div class="hero-text"><h1>Doação todo mês</h1><div class="hero-why">Mantenedor não é apenas quem doa todo mês — é quem sente que pertence a algo. Dê um nome ao grupo, crie identidade.</div><span class="hero-plain" style="background:var(--c7l);color:var(--c7)">Em linguagem simples: como criar uma renda previsível para a ONG</span></div></div>
+  <div class="module-body"><div class="col-main">
+    <div class="block"><div class="block-head"><div class="block-head-icon" style="background:var(--c7l)">🏠</div><h3>Criando seu programa de mantenedores</h3></div><div class="block-body">
+      <div class="tip-box"><strong>O segredo</strong>"Você é um dos 50 que mantêm essa causa viva" é muito mais poderoso que "você assinou o plano mensal".</div>
+      <span class="edit-label">Nome do grupo de mantenedores</span><div class="edit-area"><div contenteditable="true" data-key="m7_nome" data-ph="Ex: Guardiões da Leitura / Círculo de Raízes / Os 50 que mudam vidas"></div></div>
+      <span class="edit-label">O que os mantenedores recebem de especial?</span><div class="edit-area"><div contenteditable="true" data-key="m7_beneficios" data-ph="Ex: Grupo exclusivo no WhatsApp com bastidores, relatório mensal em primeira mão, vídeo de agradecimento no aniversário."></div></div>
+      <span class="edit-label">Como você vai lançar esse programa?</span><div class="edit-area"><div contenteditable="true" data-key="m7_lancamento" data-ph="Ex: Vídeo pessoal da líder explicando por que precisa de mantenedores + meta de 30 pessoas no primeiro mês."></div></div>
+    </div></div>
+  </div><div class="col-side">
+    <div class="block"><div class="block-head"><div class="block-head-icon" style="background:var(--c7l)">✅</div><h3>O que fazer esta semana</h3></div><div class="block-body"><div class="checklist">
+      <div class="check-item" data-key="m7_c1" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Criar nome e identidade do grupo</span></div>
+      <div class="check-item" data-key="m7_c2" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Definir o que os mantenedores recebem de especial</span></div>
+      <div class="check-item" data-key="m7_c3" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Verificar se a plataforma aceita recorrência</span></div>
+      <div class="check-item" data-key="m7_c4" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Gravar vídeo de lançamento do programa</span></div>
+      <div class="check-item" data-key="m7_c5" onclick="toggleCheck(this)"><div class="check-box">✓</div><span class="check-text">Convidar pessoalmente os 5 primeiros mantenedores</span></div>
+    </div></div></div>
+    <div class="block"><div class="block-head"><div class="block-head-icon" style="background:var(--c7l)">📊</div><h3>Meus números</h3></div><div class="block-body"><div class="metric-row">
+      <div class="metric-box-wrap"><div class="metric-box"><label>Mantenedores ativos</label><div contenteditable="true" data-key="m7_n1"></div><button class="hist-btn" onclick="openHist('m7_n1','Mantenedores ativos')">📈</button></div></div>
+      <div class="metric-box-wrap"><div class="metric-box"><label>Receita recorrente (R$)</label><div contenteditable="true" data-key="m7_n2"></div><button class="hist-btn" onclick="openHist('m7_n2','Receita recorrente (R$)')">📈</button></div></div>
     </div></div></div>
     <button class="complete-btn not-done" id="done-m7" onclick="markDone('m7')">Marcar módulo como concluído</button>
   </div></div>
