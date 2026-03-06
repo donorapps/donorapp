@@ -35,12 +35,11 @@
   do Supabase (veja o arquivo TUTORIAL.html)
 ════════════════════════════════════════ -->
 <script>
-  const SUPABASE_URL = 'COLE_SUA_URL_AQUI';
-  const SUPABASE_KEY = 'COLE_SUA_CHAVE_AQUI';
+  const SUPABASE_URL = 'https://nhccjuhppoaydoblkuoi.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_O7nmIk7YWy2DvLJy72X9CQ_tX1Aql-O';
   const ORG_ID       = 'minha-ong'; // Mude para o nome da sua ONG (sem espaços)
 </script>
-<!-- OTIMIZAÇÃO 2: Supabase carrega em paralelo, não bloqueia renderização -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+<!-- OTIMIZAÇÃO 2: Supabase carrega via dynamic inject após render -->
 
 <style>
 :root {
@@ -209,6 +208,8 @@ body.read-mode .sidebar-footer { display: none; }
   padding: 20px;
 }
 .setup-overlay.hidden { display: none; }
+.setup-overlay { display: none !important; }
+.setup-overlay.visible { display: flex !important; }
 .setup-card {
   background: #F9F6F1; border-radius: 16px;
   padding: 36px 40px; max-width: 520px; width: 100%;
@@ -269,7 +270,7 @@ body.read-mode .sidebar-footer { display: none; }
 .view.active { display: block; }
 
 /* ── DASHBOARD ── */
-#view-home { padding: 6px 10px 18px; }
+#view-home { padding: 36px 40px 48px; }
 .dash-greeting { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 900; line-height: 1.1; letter-spacing: -.5px; margin-bottom: 6px; }
 .dash-greeting span { color: #E9873A; font-style: italic; }
 .dash-sub { font-size: .85rem; color: var(--muted); max-width: 520px; line-height: 1.6; margin-bottom: 28px; }
@@ -568,7 +569,7 @@ body.read-mode .sidebar-footer { display: none; }
 
 <!-- HOME -->
 <div class="view active" id="view-home">
-  <div style="padding:6px 10px 18px">
+  <div style="padding:36px 40px 48px">
     <div class="dash-greeting">Olá, bem-vinda ao seu<br><span>guia de captação.</span></div>
     <div class="dash-sub">Este é o espaço da sua equipe para organizar como a ONG vai encontrar, conquistar e manter as pessoas que acreditam na sua causa. Todas as edições são salvas automaticamente e visíveis para todos da equipe.</div>
     <div class="ong-setup">
@@ -1207,21 +1208,28 @@ function setSyncStatus(state) {
 }
 
 // ── SETUP OVERLAY ──
-function showSetup() { document.getElementById('setup-overlay').classList.remove('hidden'); }
+function showSetup() { document.getElementById('setup-overlay').classList.add('visible'); }
 
 async function connectSupabase() {
   const url = document.getElementById('input-url').value.trim();
   const key = document.getElementById('input-key').value.trim();
   const org = document.getElementById('input-org').value.trim() || 'minha-ong';
   const err = document.getElementById('setup-error');
+  const btn = document.querySelector('.setup-connect-btn');
   if (!url || !key) { err.style.display='block'; err.textContent='Preencha os dois campos.'; return; }
-  if (!initSupabase(url, key, org)) { err.style.display='block'; return; }
+  if (!initSupabase(url, key, org)) { err.style.display='block'; err.textContent='URL inválida.'; return; }
+  btn.textContent = 'Conectando...'; btn.disabled = true;
   const ok = await testConnection();
-  if (!ok) { err.style.display='block'; err.textContent='Não consegui conectar. Verifique se as chaves estão corretas e se a tabela foi criada.'; return; }
+  btn.textContent = 'Conectar e salvar →'; btn.disabled = false;
+  if (!ok) {
+    err.style.display='block';
+    err.textContent='Não consegui conectar. Verifique se a URL e a chave anon estão corretas.';
+    return;
+  }
   localStorage.setItem('sb_url', url);
   localStorage.setItem('sb_key', key);
   localStorage.setItem('sb_org', org);
-  document.getElementById('setup-overlay').classList.add('hidden');
+  document.getElementById('setup-overlay').classList.remove('visible');
   await dbLoad();
 }
 
@@ -1353,38 +1361,90 @@ document.addEventListener('input', e => {
 // ══════════════════════════════════════════════════════
 //  INIT
 // ══════════════════════════════════════════════════════
-(async function init() {
+// ── DYNAMIC SUPABASE LOADER ──
+// Carrega a biblioteca sem bloquear a renderização,
+// depois dispara o init. Resolve o problema do defer + timing.
+function loadSupabaseLib(callback) {
+  if (typeof supabase !== 'undefined') { callback(); return; }
+  const script = document.createElement('script');
+  script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+  script.onload = callback;
+  script.onerror = () => {
+    // Sem rede: mostra cache e segue sem Supabase
+    console.warn('Supabase offline — usando cache local');
+    callback();
+  };
+  document.head.appendChild(script);
+}
+
+// ── INIT ──
+// Passo 1: mostra cache imediatamente (zero rede)
+// Passo 2: carrega Supabase em background
+// Passo 3: conecta silenciosamente e sincroniza
+function init() {
   checkReadMode();
   checkDeepLink();
 
-  // Onboarding — show only on first visit
+  // Mostra cache local instantaneamente — usuário vê conteúdo antes de qualquer rede
+  const hasCache = loadFromSnapshot();
+  if (!hasCache) loadFromLocal();
+
+  // Onboarding — só na primeira visita
   if (!localStorage.getItem('ong_onboarded')) {
     setTimeout(() => {
       document.getElementById('onboard-overlay').classList.remove('hidden');
     }, 600);
   }
 
-  // Supabase connection
-  if (typeof SUPABASE_URL !== 'undefined' && SUPABASE_URL !== 'COLE_SUA_URL_AQUI') {
-    initSupabase(SUPABASE_URL, SUPABASE_KEY, ORG_ID);
-    document.getElementById('setup-overlay').classList.add('hidden');
-    await dbLoad();
-    return;
-  }
-  const url = localStorage.getItem('sb_url');
-  const key = localStorage.getItem('sb_key');
-  const org = localStorage.getItem('sb_org');
-  if (url && key) {
-    initSupabase(url, key, org);
-    const ok = await testConnection();
-    if (ok) {
-      document.getElementById('setup-overlay').classList.add('hidden');
+  // Carrega Supabase de forma não-bloqueante
+  loadSupabaseLib(async function() {
+
+    // Chaves hardcoded no arquivo
+    if (typeof SUPABASE_URL !== 'undefined' && SUPABASE_URL !== 'COLE_SUA_URL_AQUI') {
+      initSupabase(SUPABASE_URL, SUPABASE_KEY, ORG_ID);
+      document.getElementById('setup-overlay').classList.remove('visible');
       await dbLoad();
       return;
     }
-  }
-  document.getElementById('setup-overlay').classList.remove('hidden');
-})();
+
+    // Chaves salvas no localStorage
+    const url = localStorage.getItem('sb_url');
+    const key = localStorage.getItem('sb_key');
+    const org = localStorage.getItem('sb_org');
+
+    if (url && key) {
+      initSupabase(url, key, org);
+      document.getElementById('setup-overlay').classList.remove('visible');
+
+      // Se cache é recente (< 5 min), sincroniza sem bloquear
+      // Se cache é antigo ou inexistente, valida conexão antes
+      if (cacheAgeMinutes() < 5) {
+        dbLoad(); // fire-and-forget — não bloqueia
+      } else {
+        const ok = await testConnection();
+        if (ok) {
+          await dbLoad();
+        } else {
+          // Conexão falhou mas temos cache — segue sem mostrar overlay
+          if (!hasCache) {
+            document.getElementById('setup-overlay').classList.add('visible');
+          }
+        }
+      }
+      return;
+    }
+
+    // Sem chaves salvas — primeira vez, mostra configuração
+    document.getElementById('setup-overlay').classList.add('visible');
+  });
+}
+
+// Executa após o DOM estar pronto
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
 </script>
 
 </body>
